@@ -7,6 +7,7 @@ import { parseCommand } from '@/lib/telegram/commands'
 import { sendTelegramMessage } from '@/lib/telegram/sender'
 import { sendDraftPreview, answerCallbackQuery } from '@/lib/telegram/preview'
 import { generateDraft } from '@/lib/ai/draft'
+import { runApprovalPipeline } from '@/lib/telegram/approve'
 import {
   handlePrivate,
   handleDraft,
@@ -299,16 +300,11 @@ async function handleCallbackQuery(cq: TelegramCallbackQuery): Promise<void> {
 
   switch (action) {
     case 'approve': {
-      await answerCallbackQuery(cq.id, '승인 처리 중...')
-      const { error } = await supabase
-        .from('inbox_messages')
-        .update({ status: 'approved' })
-        .eq('id', inboxId)
-      if (error) {
-        await sendTelegramMessage(`승인 실패: ${error.message}`)
-      } else {
-        await sendTelegramMessage(`✅ 승인되었습니다.\n발행 대기 중입니다. (GitHub 푸시는 Phase 10에서 구현됩니다.)`)
-      }
+      await answerCallbackQuery(cq.id, '발행 파이프라인 시작...')
+      await sendTelegramMessage('⏳ 발행 처리 시작 — 이미지 처리 및 GitHub 푸시 중입니다...')
+      after(async () => {
+        await runApprovalPipeline(inboxId)
+      })
       break
     }
 
