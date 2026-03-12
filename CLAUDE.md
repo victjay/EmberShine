@@ -14,6 +14,7 @@ CLOUDFLARE_ACCOUNT_ID    R2 account ID
 R2_ACCESS_KEY_ID         R2 key (server only)
 R2_SECRET_ACCESS_KEY     R2 secret (server only)
 R2_BUCKET_NAME           R2 bucket name
+R2_PUBLIC_URL            Public base URL for R2 assets (e.g. https://pub-xxxx.r2.dev)
 
 TELEGRAM_BOT_TOKEN       Bot token (webhook verify)
 TELEGRAM_CHAT_ID         Allowed chat ID
