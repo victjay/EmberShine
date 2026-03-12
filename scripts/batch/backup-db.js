@@ -30,11 +30,10 @@ runJob('Backup — Supabase DB', async () => {
   // ── 1. pg_dump ─────────────────────────────────────────────────────────
   console.log('[backup-db] Running pg_dump...')
   execSync(
-    `PGPASSWORD="${dbPass}" pg_dump ` +
-    `"postgresql://postgres:${dbPass}@${dbHost}:${dbPort}/postgres" ` +
+    `pg_dump -h "${dbHost}" -p ${dbPort} -U postgres -d postgres ` +
     `--table=diary_entries --table=inbox_messages --table=draft_posts --table=profiles ` +
     `-Fc -f "${dumpFile}"`,
-    { stdio: 'inherit' },
+    { stdio: 'inherit', env: { ...process.env, PGPASSWORD: dbPass } },
   )
   const dumpSizeKB = Math.round(fs.statSync(dumpFile).size / 1024)
   console.log(`[backup-db] Dump: ${dumpSizeKB} KB`)
