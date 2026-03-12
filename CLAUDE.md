@@ -60,6 +60,19 @@ Never push if:
 - NEVER publish without Shine's explicit approval
 - Private content = Supabase only, zero Git involvement
 
+## Phase 5 (Future)
+
+### AI Pipeline Architecture (planned)
+- `src/lib/ai/context.ts` — trend/context collection (Google Trends, HN, Reddit)
+- `src/lib/ai/analyzer.ts` — input classification (tech/daily/photo-essay/review)
+- `src/lib/ai/generator.ts` — category-specific prompt generation
+- `src/lib/ai/validator.ts` — quality auto-validation (SEO, readability, tone, originality scores)
+- `src/lib/ai/pipeline.ts` — full orchestration
+- Feedback loop: rejection reason collection → prompt improvement over time
+
+Current `src/lib/ai/draft.ts` uses Gemini 2.5 Flash (`GOOGLE_GENERATIVE_AI_API_KEY`).
+**Do NOT refactor until Phase 5.**
+
 ## Tech Stack
 - Next.js App Router + TypeScript
 - Tailwind CSS
