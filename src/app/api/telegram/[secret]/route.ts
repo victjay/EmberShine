@@ -254,12 +254,22 @@ async function handleCallbackQuery(cq: TelegramCallbackQuery): Promise<void> {
         console.error('[telegram] NEXT_PUBLIC_SITE_URL is not set — cannot call /api/telegram/approve')
         break
       }
-      console.log(`[telegram] firing approve route: ${siteUrl}/api/telegram/approve`)
-      fetch(`${siteUrl}/api/telegram/approve`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inboxId }),
-      }).catch((err) => console.error('[telegram] approve route fetch failed:', err))
+      const approveUrl = `${siteUrl}/api/telegram/approve`
+      console.log(`[telegram] firing approve route: ${approveUrl}`)
+      try {
+        const res = await fetch(approveUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inboxId }),
+        })
+        console.log('[telegram] approve fetch response status:', res.status)
+        if (!res.ok) {
+          const text = await res.text()
+          console.error('[telegram] approve fetch failed:', text)
+        }
+      } catch (err) {
+        console.error('[telegram] approve fetch threw:', err)
+      }
       break
     }
 
