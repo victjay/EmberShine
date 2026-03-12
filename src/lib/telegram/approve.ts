@@ -1,10 +1,14 @@
-// Full approval pipeline: image processing → R2 upload → markdown build → GitHub push.
+// Full approval pipeline: image upload → R2 → markdown build → GitHub push.
 // Called via after() so the Telegram response is not blocked.
+//
+// NOTE: Sharp image processing (resize/WebP/EXIF strip) is intentionally skipped
+// here — Sharp requires native binaries incompatible with Vercel serverless.
+// Raw JPEG from Telegram is uploaded directly to R2.
+// Phase 5 will add a separate image-processing step via a dedicated worker.
 
 import { createServiceClient } from '@/lib/supabase/server'
 import { sendTelegramMessage } from './sender'
 import { downloadTelegramFile } from './files'
-import { processImage } from '@/lib/image/process'
 import { generateKey, uploadToR2 } from '@/lib/r2/upload'
 import { buildMarkdown } from '@/lib/content/builder'
 import { pushToGitHub } from '@/lib/github/push'
@@ -68,15 +72,11 @@ export async function runApprovalPipeline(inboxId: string): Promise<void> {
       // Telegram sends multiple sizes — last entry is the largest
       const largestPhoto = photos[photos.length - 1]
 
+      // Upload raw JPEG directly — Sharp processing deferred to Phase 5
       const rawBuffer = await downloadTelegramFile(largestPhoto.file_id)
-      const processed = await processImage(rawBuffer)
-
-      shootingDate = processed.shootingDate
-      cameraModel  = processed.cameraModel
-
       const slug = `${new Date().toISOString().slice(0, 10)}-${inboxId.slice(0, 8)}`
-      const key  = generateKey(slug, 'webp')
-      imageUrl   = await uploadToR2(key, processed.buffer, 'image/webp')
+      const key  = generateKey(slug, 'jpg')
+      imageUrl   = await uploadToR2(key, rawBuffer, 'image/jpeg')
 
       // Persist R2 URL on inbox row
       await supabase
@@ -84,8 +84,8 @@ export async function runApprovalPipeline(inboxId: string): Promise<void> {
         .update({ media_r2_url: imageUrl })
         .eq('id', inboxId)
     } catch (err) {
-      console.error('[approve] Image processing failed:', err)
-      await sendTelegramMessage(`⚠️ 이미지 처리 실패 — 텍스트만으로 발행합니다.\n(${String(err)})`)
+      console.error('[approve] Image upload failed:', err)
+      await sendTelegramMessage(`⚠️ 이미지 업로드 실패 — 텍스트만으로 발행합니다.\n(${String(err)})`)
     }
   }
 
