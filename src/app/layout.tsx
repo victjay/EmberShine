@@ -52,14 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko">
       <head>
-        {/* Privacy-friendly analytics by Plausible */}
-        <script async src="https://plausible.io/js/pa-blWa_vin3pcXnXJO28RvN.js" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              'window.plausible=window.plausible||function(){(plausible.q=plausible.q||[]).push(arguments)},plausible.init=plausible.init||function(i){plausible.o=i||{}};plausible.init()',
-          }}
-        />
+        {/* Cloudflare Web Analytics: add data-cf-beacon script here */}
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Header />
