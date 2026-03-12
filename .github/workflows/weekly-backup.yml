@@ -2,12 +2,13 @@ name: Weekly Backup
 
 # ── Required GitHub Secrets ────────────────────────────────────────────────────
 # TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
-# SUPABASE_DB_HOST  (e.g. db.lddoqrgolyyshazhiuib.supabase.co)
+# SUPABASE_DB_HOST     (e.g. db.lddoqrgolyyshazhiuib.supabase.co)
 # SUPABASE_DB_PASSWORD
 # CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME
-# BACKUP_ENCRYPTION_KEY       (strong passphrase for AES-256 encryption)
-# GOOGLE_SERVICE_ACCOUNT_JSON (base64-encoded service account JSON)
-# GDRIVE_BACKUP_FOLDER_ID     (Google Drive folder shared with service account)
+# BACKUP_ENCRYPTION_KEY  (strong passphrase for AES-256 encryption of DB dump)
+# Backups are stored in the same R2 bucket under:
+#   backups/db/           — encrypted pg_dump files (keep 4)
+#   backups/r2-manifest/  — object list JSON        (keep 4)
 
 on:
   schedule:
@@ -35,8 +36,6 @@ jobs:
       R2_SECRET_ACCESS_KEY:        ${{ secrets.R2_SECRET_ACCESS_KEY }}
       R2_BUCKET_NAME:              ${{ secrets.R2_BUCKET_NAME }}
       BACKUP_ENCRYPTION_KEY:       ${{ secrets.BACKUP_ENCRYPTION_KEY }}
-      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
-      GDRIVE_BACKUP_FOLDER_ID:     ${{ secrets.GDRIVE_BACKUP_FOLDER_ID }}
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
