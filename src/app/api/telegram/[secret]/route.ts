@@ -209,7 +209,12 @@ export async function POST(
     default: {
       await sendTelegramMessage('메시지를 받았습니다. AI 초안을 생성 중입니다...')
       // Trigger AI pipeline in its own function invocation
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+      if (!siteUrl) {
+        console.error('[telegram] NEXT_PUBLIC_SITE_URL is not set — cannot call /api/telegram/draft')
+        return NextResponse.json({ ok: true })
+      }
+      console.log(`[telegram] firing draft route: ${siteUrl}/api/telegram/draft`)
       fetch(`${siteUrl}/api/telegram/draft`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -244,7 +249,11 @@ async function handleCallbackQuery(cq: TelegramCallbackQuery): Promise<void> {
       await sendTelegramMessage('⏳ 발행 처리 시작 — 이미지 처리 및 GitHub 푸시 중입니다...')
       // Trigger the pipeline in a separate serverless function invocation so it
       // gets its own execution budget independent of this webhook handler.
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+      if (!siteUrl) {
+        console.error('[telegram] NEXT_PUBLIC_SITE_URL is not set — cannot call /api/telegram/approve')
+        break
+      }
       console.log(`[telegram] firing approve route: ${siteUrl}/api/telegram/approve`)
       fetch(`${siteUrl}/api/telegram/approve`, {
         method: 'POST',
