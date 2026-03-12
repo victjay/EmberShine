@@ -12,6 +12,7 @@ import { downloadTelegramFile } from './files'
 import { generateKey, uploadToR2 } from '@/lib/r2/upload'
 import { buildMarkdown } from '@/lib/content/builder'
 import { pushToGitHub } from '@/lib/github/push'
+import { generateSNSDraft } from '@/lib/ai/sns-draft'
 
 interface TelegramPhotoSize {
   file_id: string
@@ -148,10 +149,30 @@ export async function runApprovalPipeline(inboxId: string): Promise<void> {
 
   // ── 7. Confirm ────────────────────────────────────────────────────────────
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
+  const postUrl = `${siteUrl}/${section}/${slug}`
   await sendTelegramMessage(
     `✅ 발행되었습니다. 배포 중... (2-5분 소요)\n\n` +
     `제목: ${title}\n` +
     `경로: ${githubPath}\n` +
-    `${siteUrl}/${section}/${slug}`,
+    `${postUrl}`,
   )
+
+  // ── 8. SNS draft (non-blocking) ───────────────────────────────────────────
+  try {
+    const snsDraft = await generateSNSDraft({
+      title,
+      description: metaDesc,
+      url:         postUrl,
+      tags:        mergedTags,
+    })
+    const twitterLen = snsDraft.twitter.length
+    await sendTelegramMessage(
+      `📢 SNS 초안\n\n` +
+      `🐦 X/Twitter (${twitterLen}/280자):\n${snsDraft.twitter}\n\n` +
+      `💼 LinkedIn:\n${snsDraft.linkedin}`,
+    )
+  } catch (err) {
+    console.error('[approve] SNS draft generation failed:', err)
+    // Non-blocking — pipeline already completed successfully
+  }
 }

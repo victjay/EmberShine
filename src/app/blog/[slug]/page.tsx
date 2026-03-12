@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import rehypeHighlight from 'rehype-highlight'
 import Comments from '@/components/Comments'
+import RelatedPosts from '@/components/RelatedPosts'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -80,6 +81,7 @@ export default async function BlogPostPage({ params }: Props) {
         />
       </article>
 
+      <RelatedPosts slug={slug} section="blog" />
       <Comments />
     </main>
   )

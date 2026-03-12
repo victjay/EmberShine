@@ -4,6 +4,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Comments from '@/components/Comments'
+import RelatedPosts from '@/components/RelatedPosts'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -87,6 +88,7 @@ export default async function StoryPostPage({ params }: Props) {
         <MDXRemote source={post.content} />
       </article>
 
+      <RelatedPosts slug={slug} section="stories" />
       <Comments />
     </main>
   )

@@ -6,6 +6,9 @@ name: Daily Batch Automation
 # CLOUDFLARE_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY
 # R2_BUCKET_NAME, R2_PUBLIC_URL
 # GOOGLE_GENERATIVE_AI_API_KEY
+# Weekly report only:
+#   CLOUDFLARE_API_TOKEN   (Web Analytics read permission)
+#   CF_SITE_TAG            (beacon token: 6e1718e348f64fed8e73e9423ccb4d04)
 
 on:
   schedule:
@@ -15,7 +18,7 @@ on:
   workflow_dispatch:
     inputs:
       job:
-        description: 'Job to run (all / seo / suggestions / media / stats / reminder)'
+        description: 'Job to run (all / seo / suggestions / media / stats / reminder / weekly-report)'
         required: false
         default: 'all'
 
@@ -31,6 +34,8 @@ jobs:
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CF_SITE_TAG: ${{ secrets.CF_SITE_TAG }}
       R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
       R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
       R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
@@ -77,3 +82,9 @@ jobs:
         if: ${{ !inputs.job || inputs.job == 'all' || inputs.job == 'reminder' }}
         continue-on-error: true
         run: node scripts/batch/draft-reminder.js
+
+      # ── Job 6: Weekly Report (Monday only) ───────────────────────────────
+      - name: Job 6 — Weekly Report
+        if: ${{ !inputs.job || inputs.job == 'all' || inputs.job == 'weekly-report' }}
+        continue-on-error: true
+        run: node scripts/batch/weekly-report.js
