@@ -32,6 +32,22 @@ ANTHROPIC_API_KEY        Claude API (server only + GitHub Actions)
 ## CRITICAL
 - Next.js 16 uses `src/proxy.ts` with `export default async function proxy()`. This is the correct convention for Next.js 16. Do NOT use `middleware.ts` — it is deprecated in Next.js 16. Never change this.
 
+## Git Policy
+After each Task is fully complete and all completion criteria verified:
+1. git add . (never include .env.local or any secret files)
+2. git commit -m "Task [N] complete: [Task name]"
+   Examples:
+   - "Task 3 complete: Public Pages UI"
+   - "Task 4 complete: Private Diary Page"
+3. git push origin main
+
+Task number and name must be taken directly from the Task prompt header.
+
+Never push if:
+- Build has errors
+- .env.local or secret files are staged
+- Task completion criteria are not fully met
+
 ## Hard Rules
 - NEVER commit `.env.local` or any file containing secrets
 - NEVER expose R2 credentials to client
