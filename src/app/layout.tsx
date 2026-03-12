@@ -4,7 +4,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import './globals.css'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
+const BASE_URL         = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
+const PLAUSIBLE_DOMAIN = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,12 +39,28 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: BASE_URL,
+    types: {
+      'application/rss+xml': [
+        { url: '/feed.xml',         title: 'EmberShine' },
+        { url: '/blog/feed.xml',    title: 'EmberShine — Blog' },
+        { url: '/stories/feed.xml', title: 'EmberShine — Stories' },
+      ],
+    },
   },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head>
+        {PLAUSIBLE_DOMAIN && (
+          <script
+            defer
+            data-domain={PLAUSIBLE_DOMAIN}
+            src="https://plausible.io/js/script.js"
+          />
+        )}
+      </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Header />
         {children}

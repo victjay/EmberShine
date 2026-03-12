@@ -6,6 +6,7 @@ const CONTENT_DIR = path.join(process.cwd(), 'content')
 
 export interface PostMeta {
   slug: string
+  section: string
   title: string
   date: string
   description?: string
@@ -31,7 +32,7 @@ export function getPostBySlug(section: string, slug: string): Post | null {
   if (!fs.existsSync(filePath)) return null
   const raw = fs.readFileSync(filePath, 'utf8')
   const { data, content } = matter(raw)
-  return { ...(data as PostMeta), slug, content }
+  return { ...(data as PostMeta), slug, section, content }
 }
 
 export function getAllPosts(section: string): Post[] {

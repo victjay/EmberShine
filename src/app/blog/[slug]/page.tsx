@@ -4,6 +4,7 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import rehypeHighlight from 'rehype-highlight'
+import Comments from '@/components/Comments'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -78,6 +79,8 @@ export default async function BlogPostPage({ params }: Props) {
           options={{ mdxOptions: { rehypePlugins: [rehypeHighlight] } }}
         />
       </article>
+
+      <Comments />
     </main>
   )
 }

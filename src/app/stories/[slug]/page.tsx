@@ -3,6 +3,7 @@ import { getPostBySlug, getPostSlugs } from '@/lib/content/markdown'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Comments from '@/components/Comments'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -85,6 +86,8 @@ export default async function StoryPostPage({ params }: Props) {
       ">
         <MDXRemote source={post.content} />
       </article>
+
+      <Comments />
     </main>
   )
 }

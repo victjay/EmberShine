@@ -1,0 +1,71 @@
+[
+  {
+    "slug": "2026-03-12-b06118dc",
+    "section": "blog",
+    "title": "내 차, 나의 작은 세상",
+    "date": "2026-03-12",
+    "description": "자동차는 단순한 이동 수단 그 이상! 나만의 작은 세상이자 자유, 추억을 선사하는 존재로서 자동차가 가진 특별한 의미와 감성을 공유합니다.",
+    "tags": [
+      "일상",
+      "생각",
+      "자동차",
+      "드라이브",
+      "나만의공간",
+      "추억",
+      "EmberShine"
+    ],
+    "excerpt": "오늘은 텔레그램으로 '자동차'라는 메시지와 함께 사진 한 장을 받았어요. 문득 제 차에 대한 이런저런 생각들이 떠올랐습니다. 제게 자동차는 단순한 이동 수단을 넘어선 의미를 가집니다. 아침 출근길, 좋아하는 음악을 크게 틀어놓고 세상과 잠시 단절되는 그 순간은 저만의 소중한 시간이죠. 때로는 아무 생각 없이 훌쩍 떠나고 싶을 때, 시동을 걸고 목적지 없이 "
+  },
+  {
+    "slug": "getting-started-with-nextjs",
+    "section": "blog",
+    "title": "Getting Started with Next.js 16",
+    "date": "2026-03-10",
+    "description": "A practical guide to setting up a modern Next.js project with TypeScript, Tailwind, and Supabase.",
+    "tags": [
+      "Next.js",
+      "TypeScript",
+      "Supabase"
+    ],
+    "excerpt": "Next.js 16 brings significant improvements to the App Router. Here's how to get started. Project Setup ```bash npx create-next-app@latest my-app --typescript --tailwind --app cd my-app npm install @su"
+  },
+  {
+    "slug": "supabase-rls-guide",
+    "section": "blog",
+    "title": "Supabase RLS: Row-Level Security in Practice",
+    "date": "2026-03-05",
+    "description": "How to lock down your Supabase tables so users can only access their own data.",
+    "tags": [
+      "Supabase",
+      "Security",
+      "PostgreSQL"
+    ],
+    "excerpt": "Row-Level Security (RLS) is Postgres's built-in mechanism for per-row access control. Enable RLS Always enable RLS on every table. Without it, anyone with the anon key can read all rows. ```sql ALTER "
+  },
+  {
+    "slug": "tokyo-march-2026",
+    "section": "stories",
+    "title": "Tokyo in Early Spring",
+    "date": "2026-03-01",
+    "description": "Three days wandering Shimokitazawa, Yanaka, and the backstreets of Shinjuku before the cherry blossoms.",
+    "tags": [
+      "travel",
+      "Japan",
+      "street"
+    ],
+    "excerpt": "Arrived late into Haneda. The city was cold and quiet in a way that only exists between winter and spring — that specific grey-blue light just before something blooms. Shimokitazawa The vintage shops "
+  },
+  {
+    "slug": "berlin-weekend",
+    "section": "stories",
+    "title": "48 Hours in Berlin",
+    "date": "2026-01-15",
+    "description": "A winter weekend in Neukölln and Prenzlauer Berg.",
+    "tags": [
+      "travel",
+      "Europe",
+      "winter"
+    ],
+    "excerpt": "Winter Berlin is underrated. The cold keeps everyone in the bars and galleries rather than posing for photos in parks. Neukölln Stayed in a flat above a döner shop. The host left a handwritten note ab"
+  }
+]
