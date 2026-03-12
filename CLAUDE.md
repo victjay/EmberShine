@@ -16,9 +16,10 @@ R2_SECRET_ACCESS_KEY     R2 secret (server only)
 R2_BUCKET_NAME           R2 bucket name
 R2_PUBLIC_URL            Public base URL for R2 assets (e.g. https://pub-xxxx.r2.dev)
 
-TELEGRAM_BOT_TOKEN       Bot token (webhook verify)
-TELEGRAM_CHAT_ID         Allowed chat ID
+TELEGRAM_BOT_TOKEN        Bot token
+TELEGRAM_CHAT_ID          Allowed chat ID
 TELEGRAM_ALLOWED_USER_IDS Comma-separated allowed Telegram user IDs
+TELEGRAM_WEBHOOK_SECRET   Random hex secret — forms the webhook URL path
 
 ANTHROPIC_API_KEY        Claude API (server only + GitHub Actions)
 
@@ -30,7 +31,8 @@ NEXT_PUBLIC_SITE_URL     Production URL (e.g. https://embershine.vercel.app) —
 - [ ] Supabase connection alive (`NEXT_PUBLIC_SUPABASE_URL` set)
 - [ ] `.env.local` exists with all keys populated
 - [ ] R2 keys NOT in any client-side code
-- [ ] Telegram webhook URL registered: `https://<domain>/api/telegram/webhook`
+- [ ] Telegram webhook URL registered: `https://<domain>/api/telegram/<TELEGRAM_WEBHOOK_SECRET>`
+  Run: `bash scripts/register-webhook.sh`
 
 ## CRITICAL
 - Next.js 16 uses `src/proxy.ts` with `export default async function proxy()`. This is the correct convention for Next.js 16. Do NOT use `middleware.ts` — it is deprecated in Next.js 16. Never change this.
