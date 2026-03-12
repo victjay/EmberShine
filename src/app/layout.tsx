@@ -4,6 +4,8 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import './globals.css'
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
@@ -15,8 +17,28 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'EmberShine',
-  description: 'Personal blog — tech, travel, and making things.',
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: 'EmberShine',
+    template: '%s · EmberShine',
+  },
+  description: 'Personal blog — tech writing, travel stories, and projects.',
+  openGraph: {
+    title: 'EmberShine',
+    description: 'Personal blog — tech writing, travel stories, and projects.',
+    url: BASE_URL,
+    siteName: 'EmberShine',
+    locale: 'ko_KR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'EmberShine',
+    description: 'Personal blog — tech writing, travel stories, and projects.',
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

@@ -1,5 +1,13 @@
+import type { Metadata } from 'next'
 import { getAllPosts } from '@/lib/content/markdown'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Stories',
+  description: 'Travel, daily life, and things worth remembering.',
+  alternates: { canonical: '/stories' },
+  openGraph: { title: 'Stories · EmberShine', url: '/stories' },
+}
 
 export default function StoriesPage() {
   const posts = getAllPosts('stories')

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { getPostBySlug, getPostSlugs } from '@/lib/content/markdown'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
@@ -9,6 +10,23 @@ interface Props {
 
 export async function generateStaticParams() {
   return getPostSlugs('portfolio').map((slug) => ({ slug }))
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params
+  const post = getPostBySlug('portfolio', slug)
+  if (!post) return {}
+  return {
+    title: post.title,
+    description: post.description,
+    alternates: { canonical: `/portfolio/${slug}` },
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      url: `/portfolio/${slug}`,
+      type: 'article',
+    },
+  }
 }
 
 export default async function PortfolioPostPage({ params }: Props) {

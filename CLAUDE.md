@@ -21,6 +21,8 @@ TELEGRAM_CHAT_ID         Allowed chat ID
 TELEGRAM_ALLOWED_USER_IDS Comma-separated allowed Telegram user IDs
 
 ANTHROPIC_API_KEY        Claude API (server only + GitHub Actions)
+
+NEXT_PUBLIC_SITE_URL     Production URL (e.g. https://embershine.vercel.app) — used for sitemap, OG, canonical
 ```
 
 ## Restart Checklist

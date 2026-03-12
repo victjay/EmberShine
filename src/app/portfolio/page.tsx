@@ -1,5 +1,13 @@
+import type { Metadata } from 'next'
 import { getAllPosts } from '@/lib/content/markdown'
 import Link from 'next/link'
+
+export const metadata: Metadata = {
+  title: 'Portfolio',
+  description: 'Projects built and shipped.',
+  alternates: { canonical: '/portfolio' },
+  openGraph: { title: 'Portfolio · EmberShine', url: '/portfolio' },
+}
 
 const SKILLS = [
   { category: 'Languages', items: ['TypeScript', 'Python', 'SQL', 'Bash'] },
