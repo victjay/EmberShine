@@ -1,0 +1,16 @@
+# Placeholder — full implementation in Task 5 (batch automation)
+name: Draft Generation
+
+on:
+  schedule:
+    # Offset from :00 to avoid peak load
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder
+        run: echo "Draft generation — to be implemented in Task 5"

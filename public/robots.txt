@@ -1,0 +1,7 @@
+# robots.txt — crawling hints only, NOT a security measure
+# /private/* is secured by Supabase Auth + RLS + middleware
+
+User-agent: *
+Allow: /
+Disallow: /private/
+Disallow: /api/

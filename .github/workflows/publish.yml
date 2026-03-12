@@ -1,0 +1,17 @@
+# Placeholder — full implementation in Task 5 (batch automation)
+name: Publish Approved Content
+
+on:
+  workflow_dispatch:
+    inputs:
+      draft_id:
+        description: 'Draft post ID to publish'
+        required: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Placeholder
+        run: echo "Publish flow — to be implemented in Task 5"
