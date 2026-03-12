@@ -13,6 +13,7 @@ const { sendTelegramMessage, runJob } = require('./_utils')
 
 runJob('Backup — Supabase DB', async () => {
   const dbHost  = process.env.SUPABASE_DB_HOST ?? 'db.lddoqrgolyyshazhiuib.supabase.co'
+  const dbPort  = process.env.SUPABASE_DB_PORT ?? '6543'
   const dbPass  = process.env.SUPABASE_DB_PASSWORD
   const encKey  = process.env.BACKUP_ENCRYPTION_KEY
   const bucket  = process.env.R2_BUCKET_NAME
@@ -30,7 +31,7 @@ runJob('Backup — Supabase DB', async () => {
   console.log('[backup-db] Running pg_dump...')
   execSync(
     `PGPASSWORD="${dbPass}" pg_dump ` +
-    `"postgresql://postgres:${dbPass}@${dbHost}:5432/postgres" ` +
+    `"postgresql://postgres:${dbPass}@${dbHost}:${dbPort}/postgres" ` +
     `--table=diary_entries --table=inbox_messages --table=draft_posts --table=profiles ` +
     `-Fc -f "${dumpFile}"`,
     { stdio: 'inherit' },
