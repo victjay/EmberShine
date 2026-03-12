@@ -99,8 +99,10 @@ export async function POST(
   // ── Callback query (inline button press) ──────────────────────────────────
   if (body.callback_query) {
     const cq = body.callback_query
+    console.log(`[telegram] callback_query received: id=${cq.id} from=${cq.from.id} data=${cq.data ?? '(empty)'}`)
 
     if (!isAllowedUser(cq.from.id)) {
+      console.warn(`[telegram] callback_query ignored: user ${cq.from.id} not in allowlist`)
       return NextResponse.json({ ok: true })
     }
 
@@ -294,18 +296,27 @@ async function handleCallbackQuery(cq: TelegramCallbackQuery): Promise<void> {
   const inboxId  = colonIdx === -1 ? '' : data.slice(colonIdx + 1)
 
   if (!inboxId) {
+    console.warn(`[telegram] handleCallbackQuery: missing inboxId in data="${cq.data}"`)
     await answerCallbackQuery(cq.id, '잘못된 요청입니다.')
     return
   }
 
+  console.log(`[telegram] handleCallbackQuery: action=${action} inboxId=${inboxId}`)
   const supabase = createServiceClient()
 
   switch (action) {
     case 'approve': {
+      console.log(`[telegram] approve action: inboxId=${inboxId}`)
       await answerCallbackQuery(cq.id, '발행 파이프라인 시작...')
       await sendTelegramMessage('⏳ 발행 처리 시작 — 이미지 처리 및 GitHub 푸시 중입니다...')
       after(async () => {
-        await runApprovalPipeline(inboxId)
+        console.log(`[telegram] after(): starting runApprovalPipeline for inboxId=${inboxId}`)
+        try {
+          await runApprovalPipeline(inboxId)
+          console.log(`[telegram] after(): runApprovalPipeline completed for inboxId=${inboxId}`)
+        } catch (err) {
+          console.error(`[telegram] after(): runApprovalPipeline threw for inboxId=${inboxId}:`, err)
+        }
       })
       break
     }
