@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'
+
 import { after } from 'next/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
