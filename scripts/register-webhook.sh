@@ -29,7 +29,7 @@ RESPONSE=$(curl -s -X POST "https://api.telegram.org/bot${TOKEN}/setWebhook" \
   -H "Content-Type: application/json" \
   -d "{
     \"url\": \"${WEBHOOK_URL}\",
-    \"allowed_updates\": [\"message\"],
+    \"allowed_updates\": [\"message\", \"callback_query\"],
     \"drop_pending_updates\": true
   }")
 
