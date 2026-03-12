@@ -12,8 +12,9 @@ const { S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectCommand } 
 const { sendTelegramMessage, runJob } = require('./_utils')
 
 runJob('Backup — Supabase DB', async () => {
-  const dbHost  = process.env.SUPABASE_DB_HOST ?? 'db.lddoqrgolyyshazhiuib.supabase.co'
+  const dbHost  = process.env.SUPABASE_DB_HOST ?? 'aws-0-eu-central-1.pooler.supabase.com'
   const dbPort  = process.env.SUPABASE_DB_PORT ?? '6543'
+  const dbUser  = process.env.SUPABASE_DB_USER ?? 'postgres.lddoqrgolyyshazhiuib'
   const dbPass  = process.env.SUPABASE_DB_PASSWORD
   const encKey  = process.env.BACKUP_ENCRYPTION_KEY
   const bucket  = process.env.R2_BUCKET_NAME
@@ -30,7 +31,7 @@ runJob('Backup — Supabase DB', async () => {
   // ── 1. pg_dump ─────────────────────────────────────────────────────────
   console.log('[backup-db] Running pg_dump...')
   execSync(
-    `pg_dump -h "${dbHost}" -p ${dbPort} -U postgres -d postgres ` +
+    `pg_dump -h "${dbHost}" -p ${dbPort} -U "${dbUser}" -d postgres ` +
     `--table=diary_entries --table=inbox_messages --table=draft_posts --table=profiles ` +
     `-Fc -f "${dumpFile}"`,
     { stdio: 'inherit', env: { ...process.env, PGPASSWORD: dbPass } },
