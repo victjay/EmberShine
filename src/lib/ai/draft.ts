@@ -1,7 +1,7 @@
-// Server-only — Claude API draft generation.
+// Server-only — Gemini 2.5 Flash draft generation.
 // Called after an inbox message is stored; result is inserted into draft_posts.
 
-import Anthropic from '@anthropic-ai/sdk'
+import { GoogleGenerativeAI } from '@google/generative-ai'
 
 export interface AIDraft {
   titles: [string, string, string]
@@ -18,7 +18,8 @@ export async function generateDraft(input: {
   existingTags: string[]
   hasPhoto: boolean
 }): Promise<AIDraft> {
-  const client = new Anthropic()
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const sectionHint = input.section
     ? `섹션: ${input.section}`
@@ -62,17 +63,11 @@ ${input.text}
   "translation": "English summary..."
 }`
 
-  const response = await client.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 2048,
-    messages: [{ role: 'user', content: prompt }],
-  })
-
-  const raw = response.content[0]
-  if (raw.type !== 'text') throw new Error('Unexpected response type from Claude')
+  const result = await model.generateContent(prompt)
+  const raw = result.response.text()
 
   // Strip markdown code fences if the model wraps output anyway
-  const json = raw.text.trim().replace(/^```json\s*/i, '').replace(/```\s*$/, '')
+  const json = raw.trim().replace(/^```json\s*/i, '').replace(/```\s*$/, '')
 
   const parsed = JSON.parse(json) as AIDraft
 
