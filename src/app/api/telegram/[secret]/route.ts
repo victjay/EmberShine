@@ -1,14 +1,12 @@
 export const runtime = 'nodejs'
 
-import { after } from 'next/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { isAllowedUser } from '@/lib/telegram/verify'
 import { detectMessageType, parseTags, parseTargetSection } from '@/lib/telegram/parser'
 import { parseCommand } from '@/lib/telegram/commands'
 import { sendTelegramMessage } from '@/lib/telegram/sender'
-import { sendDraftPreview, answerCallbackQuery } from '@/lib/telegram/preview'
-import { generateDraft } from '@/lib/ai/draft'
+import { answerCallbackQuery } from '@/lib/telegram/preview'
 import { runApprovalPipeline } from '@/lib/telegram/approve'
 import {
   handlePrivate,
@@ -82,6 +80,7 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ secret: string }> },
 ) {
+  console.log('[telegram] POST handler entered')
   const { secret } = await params
 
   // 1. Secret path validation
@@ -208,83 +207,17 @@ export async function POST(
     case 'photo_post':
     case 'pending':
     default: {
-      // Respond to Telegram immediately, generate AI draft after response
-      after(async () => {
-        await runAIDraftPipeline({
-          inboxId,
-          text: textContent ?? '',
-          section: targetSection,
-          tags,
-          hasPhoto,
-        })
-      })
       await sendTelegramMessage('메시지를 받았습니다. AI 초안을 생성 중입니다...')
+      // Trigger AI pipeline in its own function invocation
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+      fetch(`${siteUrl}/api/telegram/draft`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inboxId, text: textContent ?? '', section: targetSection, tags, hasPhoto }),
+      }).catch((err) => console.error('[telegram] draft route fetch failed:', err))
       return NextResponse.json({ ok: true })
     }
   }
-}
-
-// ─── AI draft pipeline (runs after response via after()) ──────────────────
-
-async function runAIDraftPipeline(input: {
-  inboxId: string
-  text: string
-  section: string | null
-  tags: string[]
-  hasPhoto: boolean
-}): Promise<void> {
-  if (!input.text) {
-    await sendTelegramMessage('텍스트가 없어 AI 초안을 생성할 수 없습니다. inbox에 보관되었습니다.')
-    return
-  }
-
-  const supabase = createServiceClient()
-
-  let draft
-  try {
-    draft = await generateDraft({
-      text: input.text,
-      section: input.section,
-      existingTags: input.tags,
-      hasPhoto: input.hasPhoto,
-    })
-  } catch (err) {
-    console.error('[ai] Draft generation failed:', err)
-    await sendTelegramMessage(`AI 초안 생성에 실패했습니다.\n수동으로 검토해주세요. (inbox ID: ${input.inboxId})`)
-    return
-  }
-
-  // Insert into draft_posts
-  const section = deriveSection(input.tags, input.section)
-  const { error: draftError } = await supabase.from('draft_posts').insert({
-    inbox_id:      input.inboxId,
-    section,
-    title:         draft.titles[0],
-    body_markdown: draft.body_markdown,
-    frontmatter: {
-      ai_titles:          draft.titles,
-      ai_summary:         draft.summary,
-      ai_tags:            draft.tags,
-      ai_meta_description: draft.meta_description,
-      ai_translation:     draft.translation,
-    },
-    status: 'draft',
-  })
-
-  if (draftError) {
-    console.error('[ai] Failed to save draft_post:', draftError.message)
-    await sendTelegramMessage(`초안 저장에 실패했습니다. (inbox ID: ${input.inboxId})`)
-    return
-  }
-
-  // Mark draft_generated_at on inbox row
-  await supabase
-    .from('inbox_messages')
-    .update({ draft_generated_at: new Date().toISOString() })
-    .eq('id', input.inboxId)
-
-  // Send preview to Shine
-  await sendDraftPreview(input.inboxId, draft)
 }
 
 // ─── Callback query dispatch ───────────────────────────────────────────────
@@ -309,15 +242,15 @@ async function handleCallbackQuery(cq: TelegramCallbackQuery): Promise<void> {
       console.log(`[telegram] approve action: inboxId=${inboxId}`)
       await answerCallbackQuery(cq.id, '발행 파이프라인 시작...')
       await sendTelegramMessage('⏳ 발행 처리 시작 — 이미지 처리 및 GitHub 푸시 중입니다...')
-      after(async () => {
-        console.log(`[telegram] after(): starting runApprovalPipeline for inboxId=${inboxId}`)
-        try {
-          await runApprovalPipeline(inboxId)
-          console.log(`[telegram] after(): runApprovalPipeline completed for inboxId=${inboxId}`)
-        } catch (err) {
-          console.error(`[telegram] after(): runApprovalPipeline threw for inboxId=${inboxId}:`, err)
-        }
-      })
+      // Trigger the pipeline in a separate serverless function invocation so it
+      // gets its own execution budget independent of this webhook handler.
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+      console.log(`[telegram] firing approve route: ${siteUrl}/api/telegram/approve`)
+      fetch(`${siteUrl}/api/telegram/approve`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inboxId }),
+      }).catch((err) => console.error('[telegram] approve route fetch failed:', err))
       break
     }
 
