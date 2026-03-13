@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import { useLang } from '@/lib/i18n/context'
+import { t } from '@/lib/i18n/strings'
 
 interface Post {
   slug: string
@@ -22,6 +24,7 @@ interface Props {
 
 export default function PostSearch({ posts, layout }: Props) {
   const [query, setQuery] = useState('')
+  const { lang } = useLang()
 
   const q = query.trim().toLowerCase()
   const filtered = q
@@ -47,19 +50,19 @@ export default function PostSearch({ posts, layout }: Props) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="제목, 태그, 설명으로 검색…"
+          placeholder={t.search.placeholder[lang]}
           className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent font-mono"
         />
         {q && (
           <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
-            {filtered.length}개
+            {t.search.count[lang](filtered.length)}
           </span>
         )}
       </div>
 
       {/* Results */}
       {filtered.length === 0 ? (
-        <p className="text-slate-400 text-sm">검색 결과가 없습니다.</p>
+        <p className="text-slate-400 text-sm">{t.search.empty[lang]}</p>
       ) : layout === 'list' ? (
         <ListLayout posts={filtered} />
       ) : (

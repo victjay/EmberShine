@@ -151,6 +151,11 @@ export async function POST(
   if (command.type === 'inbox')     { await handleInboxQuery(supabase); return NextResponse.json({ ok: true }) }
   if (command.type === 'draftlist') { await handleDraftList(supabase);  return NextResponse.json({ ok: true }) }
   if (command.type === 'stats')     { await handleStats(supabase);      return NextResponse.json({ ok: true }) }
+  if (command.type === 'link') {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://ember-shine.vercel.app'
+    await sendTelegramMessage(`📔 Private Diary\n${siteUrl}/private/diary`)
+    return NextResponse.json({ ok: true })
+  }
   if (command.type === 'backup') {
     await sendTelegramMessage('백업 기능은 준비 중입니다. (Phase 4)')
     return NextResponse.json({ ok: true })

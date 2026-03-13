@@ -10,6 +10,7 @@ export type CommandType =
   | 'draftlist' // 초안목록        → list drafts
   | 'stats'     // 통계            → message counts
   | 'backup'    // 백업            → manual backup trigger (Phase 4)
+  | 'link'      // /link           → reply with private diary URL
   | 'photo_post'// photo (± text)  → public post candidate
   | 'pending'   // fallback for everything else
 
@@ -63,10 +64,11 @@ export function parseCommand(
   }
 
   // ── Exact keyword commands ─────────────────────────────────────────────────
-  if (lower === 'inbox')   return { type: 'inbox',     content: null, postId: null, datetime: null }
-  if (lower === '초안목록') return { type: 'draftlist', content: null, postId: null, datetime: null }
-  if (lower === '통계')    return { type: 'stats',     content: null, postId: null, datetime: null }
-  if (lower === '백업')    return { type: 'backup',    content: null, postId: null, datetime: null }
+  if (lower === 'inbox')          return { type: 'inbox',     content: null, postId: null, datetime: null }
+  if (lower === '초안목록')        return { type: 'draftlist', content: null, postId: null, datetime: null }
+  if (lower === '통계')            return { type: 'stats',     content: null, postId: null, datetime: null }
+  if (lower === '백업')            return { type: 'backup',    content: null, postId: null, datetime: null }
+  if (lower === '/link' || lower === 'link') return { type: 'link', content: null, postId: null, datetime: null }
 
   // ── Photo with text → public post candidate ───────────────────────────────
   if (hasPhoto) return { type: 'photo_post', content: t, postId: null, datetime: null }

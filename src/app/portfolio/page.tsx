@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { getAllPosts } from '@/lib/content/markdown'
 import Link from 'next/link'
+import PageHeading from '@/components/PageHeading'
 
 export const metadata: Metadata = {
   title: 'Portfolio',
@@ -21,10 +22,7 @@ export default function PortfolioPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">
-      <div className="mb-10">
-        <h1 className="text-3xl font-bold text-navy-900 mb-1">Portfolio</h1>
-        <p className="text-slate-500 text-sm">Projects I've built and things I've shipped.</p>
-      </div>
+      <PageHeading page="portfolio" />
 
       {/* Projects */}
       <section className="mb-16">

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import LangToggle from './LangToggle'
+import DiaryLink from './DiaryLink'
 
 const NAV_LINKS = [
   { href: '/blog', label: 'Blog' },
@@ -28,6 +29,7 @@ export default function Header() {
               {label}
             </Link>
           ))}
+          <DiaryLink />
         </nav>
 
         <LangToggle />
