@@ -148,6 +148,31 @@ export async function POST(
   const command = parseCommand(textContent, hasPhoto)
 
   // Query commands don't need an inbox row
+  if (command.type === 'help') {
+    await sendTelegramMessage(
+      `📚 <b>EmberShine 명령어 안내</b>\n\n` +
+      `<b>콘텐츠</b>\n` +
+      `• 사진/글 전송 → AI 초안 자동 생성\n` +
+      `• ✅ 승인 → GitHub 발행\n` +
+      `• ✏️ 수정 → 웹 에디터로 이동\n` +
+      `• ❌ 거절 → 초안 거절 처리\n` +
+      `• 📄 전문 → 초안 본문 전체 보기\n` +
+      `• 🌐 번역 → 영어 번역 보기\n\n` +
+      `<b>명령어</b>\n` +
+      `• /help — 이 도움말\n` +
+      `• /link — Private Diary 링크\n` +
+      `• inbox — 대기 중 목록 조회\n` +
+      `• 초안목록 — 저장된 초안 목록\n` +
+      `• 통계 — inbox/초안/일기 통계\n` +
+      `• 비공개: [내용] — 비공개 일기 저장\n` +
+      `• 초안: [내용] — 수동 초안 저장\n\n` +
+      `<b>섹션 태그</b>\n` +
+      `• #blog — 기술 노트 (기본값)\n` +
+      `• #stories — 여행/일상\n` +
+      `• #portfolio — 프로젝트`,
+    )
+    return NextResponse.json({ ok: true })
+  }
   if (command.type === 'inbox')     { await handleInboxQuery(supabase); return NextResponse.json({ ok: true }) }
   if (command.type === 'draftlist') { await handleDraftList(supabase);  return NextResponse.json({ ok: true }) }
   if (command.type === 'stats')     { await handleStats(supabase);      return NextResponse.json({ ok: true }) }
