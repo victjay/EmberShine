@@ -6,6 +6,7 @@ import Link from 'next/link'
 import rehypeHighlight from 'rehype-highlight'
 import Comments from '@/components/Comments'
 import RelatedPosts from '@/components/RelatedPosts'
+import SectionControls from '@/components/SectionControls'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -49,9 +50,12 @@ export default async function BlogPostPage({ params }: Props) {
       </Link>
 
       <header className="mb-10">
-        <h1 className="text-3xl font-bold text-navy-900 leading-tight mb-3">
-          {post.title}
-        </h1>
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <h1 className="text-3xl font-bold text-navy-900 leading-tight">
+            {post.title}
+          </h1>
+          <SectionControls newHref="/private/blog/new" editHref={`/private/blog/edit/${slug}`} />
+        </div>
         <div className="flex flex-wrap items-center gap-3">
           <time className="font-mono text-sm text-slate-400">{post.date}</time>
           {post.tags && post.tags.length > 0 && (

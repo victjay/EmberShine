@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 
-export default async function InboxPage() {
+export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
+  const { saved } = await searchParams
   const supabase = await createClient()
 
   const { data: messages } = await supabase
@@ -16,6 +17,11 @@ export default async function InboxPage() {
 
   return (
     <main className="max-w-3xl mx-auto py-10 px-4">
+      {saved === '1' && (
+        <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
+          게시 요청 완료. Vercel 재빌드 완료 후 사이트에 반영됩니다.
+        </div>
+      )}
       <h1 className="text-3xl font-bold mb-2">Inbox</h1>
       <p className="text-sm text-gray-500 mb-8">
         총 {messages?.length ?? 0}개 — 대기 {pending.length} / 승인 {approved.length} / 거절 {rejected.length} / 비공개 {private_.length}

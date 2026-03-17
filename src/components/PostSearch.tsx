@@ -19,11 +19,12 @@ interface Post {
 
 interface Props {
   posts: Post[]
-  layout: 'list' | 'grid'
+  layout?: 'list' | 'grid'
 }
 
 export default function PostSearch({ posts, layout }: Props) {
   const [query, setQuery] = useState('')
+  const [currentLayout, setCurrentLayout] = useState<'list' | 'grid'>(layout ?? 'list')
   const { lang } = useLang()
 
   const q = query.trim().toLowerCase()
@@ -37,33 +38,57 @@ export default function PostSearch({ posts, layout }: Props) {
 
   return (
     <>
-      {/* Search input */}
-      <div className="relative mb-8">
-        <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"
-          fill="none" stroke="currentColor" viewBox="0 0 24 24"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-            d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
-        </svg>
-        <input
-          type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t.search.placeholder[lang]}
-          className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent font-mono"
-        />
-        {q && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
-            {t.search.count[lang](filtered.length)}
-          </span>
-        )}
+      {/* Search input + layout toggle */}
+      <div className="flex items-center gap-3 mb-8">
+        <div className="relative flex-1">
+          <svg
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4"
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+              d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+          </svg>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t.search.placeholder[lang]}
+            className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent font-mono"
+          />
+          {q && (
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">
+              {t.search.count[lang](filtered.length)}
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-1 border border-slate-200 rounded-lg p-1 shrink-0">
+          <button
+            onClick={() => setCurrentLayout('list')}
+            className={`p-1.5 rounded ${currentLayout === 'list' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}
+            aria-label="List view"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <button
+            onClick={() => setCurrentLayout('grid')}
+            className={`p-1.5 rounded ${currentLayout === 'grid' ? 'bg-slate-900 text-white' : 'text-slate-400 hover:text-slate-700'}`}
+            aria-label="Grid view"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                d="M4 5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zm10 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V5zM4 15a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-4zm10 0a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1v-4z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Results */}
       {filtered.length === 0 ? (
         <p className="text-slate-400 text-sm">{t.search.empty[lang]}</p>
-      ) : layout === 'list' ? (
+      ) : currentLayout === 'list' ? (
         <ListLayout posts={filtered} />
       ) : (
         <GridLayout posts={filtered} />

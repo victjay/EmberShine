@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getAllPosts } from '@/lib/content/markdown'
 import Link from 'next/link'
 import PageHeading from '@/components/PageHeading'
+import SectionControls from '@/components/SectionControls'
 
 export const metadata: Metadata = {
   title: 'Portfolio',
@@ -22,7 +23,10 @@ export default function PortfolioPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">
-      <PageHeading page="portfolio" />
+      <div className="flex items-start justify-between gap-4">
+        <PageHeading page="portfolio" />
+        <SectionControls newHref="/private/portfolio/new" />
+      </div>
 
       {/* Projects */}
       <section className="mb-16">
