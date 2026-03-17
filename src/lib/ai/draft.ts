@@ -1,4 +1,4 @@
-// Server-only — Gemini 2.5 Flash draft generation.
+// Server-only — Gemini 2.0 Flash draft generation.
 // Called after an inbox message is stored; result is inserted into draft_posts.
 
 import { GoogleGenerativeAI } from '@google/generative-ai'
@@ -19,7 +19,7 @@ export async function generateDraft(input: {
   hasPhoto: boolean
 }): Promise<AIDraft> {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
 
   const sectionHint = input.section
     ? `섹션: ${input.section}`
@@ -47,7 +47,7 @@ ${input.text}
 
 [생성 규칙]
 - 제목 후보 3개: 한국어, 짧고 매력적, 클릭하고 싶은 제목
-- 본문: 한국어 마크다운 500~1000자 (자연스럽고 개인적인 톤)
+- 본문: 한국어 마크다운 300~600자 (자연스럽고 개인적인 톤)
 - 요약: 2~3문장, 독자가 글을 읽기 전에 핵심을 파악할 수 있게
 - 태그: 5~7개, 기존 태그 포함 + 추가 제안
 - SEO 메타 설명: 150자 이내 한국어
@@ -66,15 +66,26 @@ ${input.text}
   const result = await model.generateContent({
     contents: [{ role: 'user', parts: [{ text: prompt }] }],
     generationConfig: {
-      maxOutputTokens: 2048,
-    },
+      maxOutputTokens: 4096,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      responseMimeType: 'application/json',
+    } as any,
   })
   const raw = result.response.text()
+  console.log('[ai/draft] raw response length:', raw.length)
+  console.log('[ai/draft] raw response preview:', raw.slice(0, 300))
 
   // Strip markdown code fences if the model wraps output anyway
   const json = raw.trim().replace(/^```json\s*/i, '').replace(/```\s*$/, '')
 
-  const parsed = JSON.parse(json) as AIDraft
+  let parsed: AIDraft
+  try {
+    parsed = JSON.parse(json) as AIDraft
+  } catch (e) {
+    console.error('[ai/draft] JSON.parse failed. raw length:', raw.length)
+    console.error('[ai/draft] raw preview:', raw.slice(0, 500))
+    throw new Error(`Gemini JSON 파싱 실패 (응답 길이: ${raw.length}): ${e instanceof Error ? e.message : String(e)}`)
+  }
 
   // Validate shape — guarantee [title1, title2, title3]
   if (!Array.isArray(parsed.titles) || parsed.titles.length < 3) {
