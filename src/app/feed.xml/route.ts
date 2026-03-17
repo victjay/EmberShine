@@ -2,7 +2,7 @@ import { getAllPosts } from '@/lib/content/markdown'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
 
-function buildFeed(title: string, description: string, feedUrl: string, posts: ReturnType<typeof getAllPosts>) {
+function buildFeed(title: string, description: string, feedUrl: string, posts: Awaited<ReturnType<typeof getAllPosts>>) {
   const items = posts.map((post) => `
     <item>
       <title><![CDATA[${post.title}]]></title>
@@ -26,8 +26,9 @@ function buildFeed(title: string, description: string, feedUrl: string, posts: R
 }
 
 export async function GET() {
-  const blog    = getAllPosts('blog').map((p) => ({ ...p, section: 'blog' }))
-  const stories = getAllPosts('stories').map((p) => ({ ...p, section: 'stories' }))
+  const [blogRaw, storiesRaw] = await Promise.all([getAllPosts('blog'), getAllPosts('stories')])
+  const blog    = blogRaw.map((p) => ({ ...p, section: 'blog' }))
+  const stories = storiesRaw.map((p) => ({ ...p, section: 'stories' }))
   const all     = [...blog, ...stories].sort((a, b) => (a.date > b.date ? -1 : 1))
 
   const xml = buildFeed(

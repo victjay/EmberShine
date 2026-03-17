@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = getPostBySlug('portfolio', slug)
+  const post = await getPostBySlug('portfolio', slug)
   if (!post) return {}
   return {
     title: post.title,
@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function PortfolioPostPage({ params }: Props) {
   const { slug } = await params
-  const post = getPostBySlug('portfolio', slug)
+  const post = await getPostBySlug('portfolio', slug)
   if (!post) notFound()
 
   return (

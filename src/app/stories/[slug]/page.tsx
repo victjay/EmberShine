@@ -17,7 +17,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const post = getPostBySlug('stories', slug)
+  const post = await getPostBySlug('stories', slug)
   if (!post) return {}
   return {
     title: post.title,
@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function StoryPostPage({ params }: Props) {
   const { slug } = await params
-  const post = getPostBySlug('stories', slug)
+  const post = await getPostBySlug('stories', slug)
   if (!post) notFound()
 
   return (

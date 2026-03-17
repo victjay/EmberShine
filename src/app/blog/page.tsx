@@ -11,8 +11,8 @@ export const metadata: Metadata = {
   openGraph: { title: 'Blog · EmberShine', url: '/blog' },
 }
 
-export default function BlogPage() {
-  const posts = getAllPosts('blog')
+export default async function BlogPage() {
+  const posts = await getAllPosts('blog')
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">

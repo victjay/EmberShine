@@ -10,7 +10,7 @@ interface Props {
 
 export default async function EditStoryPage({ params }: Props) {
   const { slug } = await params
-  const post = getPostBySlug('stories', slug)
+  const post = await getPostBySlug('stories', slug)
 
   if (post) {
     return (

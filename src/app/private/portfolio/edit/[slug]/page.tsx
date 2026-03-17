@@ -10,7 +10,7 @@ interface Props {
 
 export default async function EditProjectPage({ params }: Props) {
   const { slug } = await params
-  const post = getPostBySlug('portfolio', slug)
+  const post = await getPostBySlug('portfolio', slug)
 
   if (post) {
     return (

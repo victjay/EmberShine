@@ -18,8 +18,8 @@ const SKILLS = [
   { category: 'Infra', items: ['Vercel', 'Cloudflare R2', 'GitHub Actions'] },
 ]
 
-export default function PortfolioPage() {
-  const projects = getAllPosts('portfolio')
+export default async function PortfolioPage() {
+  const projects = await getAllPosts('portfolio')
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">

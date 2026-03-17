@@ -3,7 +3,7 @@ import { getAllPosts } from '@/lib/content/markdown'
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
 
 export async function GET() {
-  const posts = getAllPosts('blog')
+  const posts = await getAllPosts('blog')
 
   const items = posts.map((post) => `
     <item>
