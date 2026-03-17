@@ -1,4 +1,4 @@
-// Push a file to GitHub via the Contents API (create or update).
+// Push or delete a file on GitHub via the Contents API.
 // Uses GITHUB_TOKEN (PAT) and GITHUB_REPO_URL from env.
 
 export async function pushToGitHub(input: {
@@ -48,5 +48,51 @@ export async function pushToGitHub(input: {
   if (!putRes.ok) {
     const body = await putRes.text()
     throw new Error(`[github/push] API error ${putRes.status}: ${body}`)
+  }
+}
+
+export async function deleteFromGitHub(path: string): Promise<void> {
+  const token   = process.env.GITHUB_TOKEN
+  const repoUrl = process.env.GITHUB_REPO_URL
+
+  if (!token || !repoUrl) {
+    throw new Error('[github/push] GITHUB_TOKEN or GITHUB_REPO_URL not set')
+  }
+
+  const match = repoUrl.match(/github\.com\/([^/]+\/[^/]+?)(?:\.git)?\s*$/)
+  if (!match) throw new Error(`[github/push] Invalid GITHUB_REPO_URL: ${repoUrl}`)
+  const repo = match[1]
+
+  const apiUrl = `https://api.github.com/repos/${repo}/contents/${path}`
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github.v3+json',
+    'Content-Type': 'application/json',
+    'User-Agent': 'EmberShine-Bot/1.0',
+  }
+
+  // GET to retrieve SHA
+  const getRes = await fetch(apiUrl, { headers })
+  if (getRes.status === 404) return  // file doesn't exist — nothing to delete
+
+  if (!getRes.ok) {
+    const body = await getRes.text()
+    throw new Error(`[github/push] deleteFromGitHub GET error ${getRes.status}: ${body}`)
+  }
+
+  const existing = await getRes.json() as { sha: string }
+
+  const delRes = await fetch(apiUrl, {
+    method: 'DELETE',
+    headers,
+    body: JSON.stringify({
+      message: `Delete EN translation: ${path}`,
+      sha: existing.sha,
+    }),
+  })
+
+  if (!delRes.ok) {
+    const body = await delRes.text()
+    throw new Error(`[github/push] deleteFromGitHub DELETE error ${delRes.status}: ${body}`)
   }
 }

@@ -4,7 +4,9 @@ import { redirect } from 'next/navigation'
 import { assertAdmin } from '@/lib/auth/admin'
 import { safeSlug, ensureUniquePostId } from '@/lib/content/slug-utils'
 import { buildMarkdown } from '@/lib/content/builder'
-import { pushToGitHub } from '@/lib/github/push'
+import { pushToGitHub, deleteFromGitHub } from '@/lib/github/push'
+import { translatePost } from '@/lib/ai/translate'
+import { buildEnMarkdown } from '@/lib/content/en-file'
 
 export async function createStory(formData: FormData): Promise<{ error: string } | undefined> {
   await assertAdmin()
@@ -51,6 +53,34 @@ export async function createStory(formData: FormData): Promise<{ error: string }
     return { error: `GitHub push 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
   }
 
+  // ── 번역 (비차단) ───────────────────────────────────────
+  try {
+    const translation = await translatePost({
+      title,
+      description: description ?? undefined,
+      body,
+      fromLocale: 'ko',
+      toLocale: 'en',
+    })
+
+    if (translation.success) {
+      const enContent = buildEnMarkdown(
+        { title, date, description, tags, location, shooting_date: shootingDate },
+        translation.data,
+      )
+      await pushToGitHub({
+        path: `content/stories/${postId}.en.md`,
+        content: enContent,
+        message: `Add EN translation: ${postId}`,
+      })
+    } else {
+      console.error('[translate] skipped:', translation.error)
+    }
+  } catch (e) {
+    console.error('[translate] failed (non-blocking):', e)
+  }
+  // ────────────────────────────────────────────────────────
+
   redirect('/private/inbox?saved=1')
 }
 
@@ -94,6 +124,41 @@ export async function updateStory(formData: FormData): Promise<{ error: string }
   } catch (e) {
     return { error: `GitHub push 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
   }
+
+  // 기존 .en.md stale 처리: 삭제 후 재번역 시도
+  try {
+    await deleteFromGitHub(`content/stories/${postId}.en.md`)
+  } catch (e) {
+    console.error('[translate] delete existing EN failed (non-blocking):', e)
+  }
+
+  // ── 번역 (비차단) ───────────────────────────────────────
+  try {
+    const translation = await translatePost({
+      title,
+      description: description ?? undefined,
+      body,
+      fromLocale: 'ko',
+      toLocale: 'en',
+    })
+
+    if (translation.success) {
+      const enContent = buildEnMarkdown(
+        { title, date, description, tags, location, shooting_date: shootingDate },
+        translation.data,
+      )
+      await pushToGitHub({
+        path: `content/stories/${postId}.en.md`,
+        content: enContent,
+        message: `Add EN translation: ${postId}`,
+      })
+    } else {
+      console.error('[translate] skipped:', translation.error)
+    }
+  } catch (e) {
+    console.error('[translate] failed (non-blocking):', e)
+  }
+  // ────────────────────────────────────────────────────────
 
   redirect('/private/inbox?saved=1')
 }
