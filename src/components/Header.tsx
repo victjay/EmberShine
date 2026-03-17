@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import LangToggle from './LangToggle'
 import DiaryLink from './DiaryLink'
+import InboxLink from './InboxLink'
+import LoginLink from './LoginLink'
 
 const NAV_LINKS = [
   { href: '/blog', label: 'Blog' },
@@ -30,9 +32,13 @@ export default function Header() {
             </Link>
           ))}
           <DiaryLink />
+          <InboxLink />
         </nav>
 
-        <LangToggle />
+        <div className="flex items-center gap-4">
+          <LoginLink />
+          <LangToggle />
+        </div>
       </div>
     </header>
   )

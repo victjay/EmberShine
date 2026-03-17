@@ -3,6 +3,7 @@ import { getPostBySlug, getPostSlugs } from '@/lib/content/markdown'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import SectionControls from '@/components/SectionControls'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -44,8 +45,11 @@ export default async function PortfolioPostPage({ params }: Props) {
       </Link>
 
       <header className="mb-10">
-        <div className="flex flex-wrap items-center gap-3 mb-3">
+        <div className="flex items-start justify-between gap-4 mb-3">
           <h1 className="text-3xl font-bold text-navy-900">{post.title}</h1>
+          <SectionControls newHref="/private/portfolio/new" editHref={`/private/portfolio/edit/${slug}`} />
+        </div>
+        <div className="flex flex-wrap items-center gap-3 mb-3">
           {post.status != null && (
             <span className={`text-xs font-mono px-2 py-1 rounded border ${
               post.status === 'In Progress'

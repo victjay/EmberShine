@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Comments from '@/components/Comments'
 import RelatedPosts from '@/components/RelatedPosts'
+import SectionControls from '@/components/SectionControls'
 
 interface Props {
   params: Promise<{ slug: string }>
@@ -68,9 +69,12 @@ export default async function StoryPostPage({ params }: Props) {
           <time className="text-xs font-mono text-slate-400">{post.date}</time>
         </div>
 
-        <h1 className="text-4xl font-bold text-navy-900 leading-tight mb-3">
-          {post.title}
-        </h1>
+        <div className="flex items-start justify-between gap-4 mb-3">
+          <h1 className="text-4xl font-bold text-navy-900 leading-tight">
+            {post.title}
+          </h1>
+          <SectionControls newHref="/private/stories/new" editHref={`/private/stories/edit/${slug}`} />
+        </div>
 
         {post.description && (
           <p className="text-lg text-slate-500 leading-relaxed">

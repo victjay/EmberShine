@@ -102,20 +102,23 @@ export async function runApprovalPipeline(inboxId: string): Promise<void> {
   const slug          = `${date}-${inboxId.slice(0, 8)}`
   const mergedTags    = [...new Set([...(inbox.parsed_tags ?? []), ...aiTags])]
 
-  const { content: markdownContent, path: githubPath } = buildMarkdown({
+  const frontmatter: Record<string, unknown> = {
     title,
     date,
-    summary,
-    tags:          mergedTags,
-    imageUrl,
-    imageAlt:      imageUrl ? title : null,
-    metaDescription: metaDesc,
-    section,
-    shootingDate,
-    cameraModel,
-    slug,
-    body,
-  })
+    description: metaDesc || summary,
+    ...(mergedTags.length > 0 ? { tags: mergedTags } : {}),
+    ...(imageUrl ? { image: imageUrl } : {}),
+    ...(imageUrl ? { alt: title } : {}),
+    ...(shootingDate !== null ? { shooting_date: String(shootingDate).slice(0, 10) } : {}),
+    ...(cameraModel !== null ? { camera: String(cameraModel) } : {}),
+  }
+
+  const fullBody = imageUrl
+    ? `![${title}](${imageUrl})\n\n${body}`
+    : body
+
+  const githubPath     = `content/${section}/${slug}.md`
+  const markdownContent = buildMarkdown(frontmatter, fullBody)
 
   // ── 5. Push to GitHub ─────────────────────────────────────────────────────
   const timestamp     = new Date().toISOString().slice(0, 16).replace('T', ' ')

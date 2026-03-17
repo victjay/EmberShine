@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getAllPosts } from '@/lib/content/markdown'
 import PostSearch from '@/components/PostSearch'
 import PageHeading from '@/components/PageHeading'
+import SectionControls from '@/components/SectionControls'
 
 export const metadata: Metadata = {
   title: 'Stories',
@@ -15,7 +16,10 @@ export default function StoriesPage() {
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">
-      <PageHeading page="stories" />
+      <div className="flex items-start justify-between gap-4">
+        <PageHeading page="stories" />
+        <SectionControls newHref="/private/stories/new" />
+      </div>
 
       <PostSearch posts={posts} layout="grid" />
     </main>
