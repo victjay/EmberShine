@@ -31,15 +31,32 @@ export default async function EditProjectPage({ params }: Props) {
     )
   }
 
-  // Fallback: GitHub file not yet created — check draft_posts
+  // 1순위: github_path 정확히 일치하는 draft 조회
   const supabase = createServiceClient()
-  const { data: draft } = await supabase
+  let draft = null
+
+  const { data: byPath } = await supabase
     .from('draft_posts')
     .select('title, body_markdown, frontmatter')
     .eq('github_path', `content/portfolio/${slug}.md`)
     .order('created_at', { ascending: false })
     .limit(1)
     .single()
+
+  if (byPath) {
+    draft = byPath
+  } else {
+    // 2순위: github_path가 null인 portfolio 섹션 최신 draft
+    const { data: bySection } = await supabase
+      .from('draft_posts')
+      .select('title, body_markdown, frontmatter')
+      .eq('section', 'portfolio')
+      .is('github_path', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single()
+    draft = bySection ?? null
+  }
 
   if (!draft) notFound()
 
@@ -55,8 +72,8 @@ export default async function EditProjectPage({ params }: Props) {
         postId:      slug,
         title:       String(draft.title ?? ''),
         date:        String(fm.date ?? today),
-        tags:        Array.isArray(fm.tags) ? (fm.tags as string[]) : [],
-        description: String(fm.description ?? fm.ai_summary ?? ''),
+        tags:        Array.isArray(fm.ai_tags) ? (fm.ai_tags as string[]) : [],
+        description: String(fm.ai_meta_description ?? fm.ai_summary ?? ''),
         status:      fm.status != null ? String(fm.status) : 'Shipped',
         body:        String(draft.body_markdown ?? ''),
       }}
