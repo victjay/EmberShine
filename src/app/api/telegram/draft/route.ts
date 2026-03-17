@@ -36,13 +36,26 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServiceClient()
 
+  // 2-A: 진입 즉시 processing 상태로 변경
+  await supabase
+    .from('inbox_messages')
+    .update({ status: 'processing' })
+    .eq('id', inboxId)
+
   let draft
   try {
     draft = await generateDraft({ text, section, existingTags: tags, hasPhoto })
     console.log(`[draft-route] Draft generated for inboxId=${inboxId}`)
   } catch (err) {
     console.error('[draft-route] generateDraft failed:', err)
-    await sendTelegramMessage(`AI 초안 생성에 실패했습니다.\n수동으로 검토해주세요. (inbox ID: ${inboxId})`)
+    // 2-C: 실패 시 pending 복원 + Telegram 알림
+    await supabase
+      .from('inbox_messages')
+      .update({ status: 'pending' })
+      .eq('id', inboxId)
+    await sendTelegramMessage(
+      `⚠️ AI 초안 생성 실패\n인박스 ID: ${inboxId}\n오류: ${err instanceof Error ? err.message : '알 수 없는 오류'}`,
+    )
     return NextResponse.json({ ok: true })
   }
 
@@ -69,13 +82,24 @@ export async function POST(request: NextRequest) {
 
   if (insertError) {
     console.error('[draft-route] draft_posts insert failed:', insertError.message)
-    await sendTelegramMessage(`초안 저장에 실패했습니다. (inbox ID: ${inboxId})`)
+    // 2-C: 저장 실패 시 pending 복원 + Telegram 알림
+    await supabase
+      .from('inbox_messages')
+      .update({ status: 'pending' })
+      .eq('id', inboxId)
+    await sendTelegramMessage(
+      `⚠️ 초안 저장 실패\n인박스 ID: ${inboxId}\n오류: ${insertError.message}`,
+    )
     return NextResponse.json({ ok: true })
   }
 
+  // 2-B: 성공 시 pending 복원 + draft_generated_at 기록
   await supabase
     .from('inbox_messages')
-    .update({ draft_generated_at: new Date().toISOString() })
+    .update({
+      draft_generated_at: new Date().toISOString(),
+      status: 'pending',
+    })
     .eq('id', inboxId)
 
   await sendDraftPreview(inboxId, draft)

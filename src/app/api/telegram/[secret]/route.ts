@@ -1,6 +1,6 @@
 export const runtime = 'nodejs'
 
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createServiceClient } from '@/lib/supabase/server'
 import { isAllowedUser } from '@/lib/telegram/verify'
 import { detectMessageType, parseTags, parseTargetSection } from '@/lib/telegram/parser'
@@ -244,12 +244,19 @@ export async function POST(
         console.error('[telegram] NEXT_PUBLIC_SITE_URL is not set — cannot call /api/telegram/draft')
         return NextResponse.json({ ok: true })
       }
-      console.log(`[telegram] firing draft route: ${siteUrl}/api/telegram/draft`)
-      fetch(`${siteUrl}/api/telegram/draft`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inboxId, text: textContent ?? '', section: targetSection, tags, hasPhoto }),
-      }).catch((err) => console.error('[telegram] draft route fetch failed:', err))
+      const draftPayload = JSON.stringify({ inboxId, text: textContent ?? '', section: targetSection, tags, hasPhoto })
+      console.log(`[telegram] scheduling draft route via after(): ${siteUrl}/api/telegram/draft`)
+      after(async () => {
+        try {
+          await fetch(`${siteUrl}/api/telegram/draft`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: draftPayload,
+          })
+        } catch (err) {
+          console.error('[telegram] after() draft fetch failed:', err)
+        }
+      })
       return NextResponse.json({ ok: true })
     }
   }

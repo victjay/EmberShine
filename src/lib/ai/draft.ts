@@ -63,7 +63,12 @@ ${input.text}
   "translation": "English summary..."
 }`
 
-  const result = await model.generateContent(prompt)
+  const result = await model.generateContent({
+    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    generationConfig: {
+      maxOutputTokens: 2048,
+    },
+  })
   const raw = result.response.text()
 
   // Strip markdown code fences if the model wraps output anyway
