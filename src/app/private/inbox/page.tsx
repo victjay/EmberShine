@@ -1,8 +1,8 @@
-import { createClient } from '@/lib/supabase/server'
+import { createServiceClient } from '@/lib/supabase/server'
 
 export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const { saved } = await searchParams
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
   const { data: messages } = await supabase
     .from('inbox_messages')
