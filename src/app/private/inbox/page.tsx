@@ -1,4 +1,6 @@
+import Link from 'next/link'
 import { createServiceClient } from '@/lib/supabase/server'
+import { deleteInboxMessage } from './actions'
 
 export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const { saved } = await searchParams
@@ -76,25 +78,41 @@ function Section({ title, items, accent }: { title: string; items: MessageRow[];
       </h2>
       <ul className="space-y-3">
         {items.map((m) => (
-          <li key={m.id} className="border border-gray-200 rounded-lg p-4 text-sm">
-            <div className="flex items-center justify-between mb-1">
-              <span className="font-mono text-xs text-gray-400">{m.id.slice(0, 8)}…</span>
-              <span className="text-xs text-gray-400">
-                {m.telegram_date ? m.telegram_date.slice(0, 16).replace('T', ' ') : ''}
-              </span>
-            </div>
-            <p className="text-gray-700 line-clamp-2">
-              {m.text_content ?? `(${m.message_type})`}
-            </p>
-            <div className="flex flex-wrap gap-1 mt-2">
-              {m.target_section && (
-                <Tag label={m.target_section} />
-              )}
-              {m.parsed_tags?.map((t) => <Tag key={t} label={t} />)}
-              {m.draft_generated_at && (
-                <Tag label="AI 초안 있음" className="bg-purple-100 text-purple-700" />
-              )}
-            </div>
+          <li key={m.id} className="relative">
+            <Link
+              href={`/private/inbox/${m.id}`}
+              className="border border-gray-200 rounded-lg p-4 text-sm hover:border-blue-400 hover:shadow-sm transition-all cursor-pointer block"
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="font-mono text-xs text-gray-400">{m.id.slice(0, 8)}…</span>
+                <span className="text-xs text-gray-400">
+                  {m.telegram_date ? m.telegram_date.slice(0, 16).replace('T', ' ') : ''}
+                </span>
+              </div>
+              <p className="text-gray-700 line-clamp-2">
+                {m.text_content ?? `(${m.message_type})`}
+              </p>
+              <div className="flex flex-wrap gap-1 mt-2">
+                {m.target_section && (
+                  <Tag label={m.target_section} />
+                )}
+                {m.parsed_tags?.map((t) => <Tag key={t} label={t} />)}
+                {m.draft_generated_at && (
+                  <Tag label="AI 초안 있음" className="bg-purple-100 text-purple-700" />
+                )}
+              </div>
+            </Link>
+            {/* 삭제 버튼 — Link 바깥, 우측 상단 절대 위치 */}
+            <form action={deleteInboxMessage} className="absolute top-3 right-3">
+              <input type="hidden" name="id" value={m.id} />
+              <button
+                type="submit"
+                onClick={(e) => e.stopPropagation()}
+                className="px-2 py-1 text-xs text-red-400 hover:text-red-600 hover:bg-red-50 border border-red-200 rounded transition-colors"
+              >
+                삭제
+              </button>
+            </form>
           </li>
         ))}
       </ul>
