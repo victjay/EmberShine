@@ -19,7 +19,7 @@ export async function generateDraft(input: {
   hasPhoto: boolean
 }): Promise<AIDraft> {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
 
   const sectionHint = input.section
     ? `섹션: ${input.section}`
