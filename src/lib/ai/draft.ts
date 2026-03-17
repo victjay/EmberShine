@@ -1,7 +1,7 @@
-// Server-only — Gemini 2.0 Flash draft generation.
+// Server-only — Gemini 2.5 Flash draft generation.
 // Called after an inbox message is stored; result is inserted into draft_posts.
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 export interface AIDraft {
   titles: [string, string, string]
@@ -18,8 +18,7 @@ export async function generateDraft(input: {
   existingTags: string[]
   hasPhoto: boolean
 }): Promise<AIDraft> {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY })
 
   const sectionHint = input.section
     ? `섹션: ${input.section}`
@@ -63,15 +62,16 @@ ${input.text}
   "translation": "English summary..."
 }`
 
-  const result = await model.generateContent({
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+    config: {
       maxOutputTokens: 4096,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       responseMimeType: 'application/json',
-    } as any,
+    },
   })
-  const raw = result.response.text()
+
+  const raw = response.text ?? ''
   console.log('[ai/draft] raw response length:', raw.length)
   console.log('[ai/draft] raw response preview:', raw.slice(0, 300))
 

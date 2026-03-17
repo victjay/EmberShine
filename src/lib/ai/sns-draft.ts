@@ -2,7 +2,7 @@
 // Called after post approval; results sent to Telegram for manual posting.
 // Auto-posting is disabled by default (SNS_AUTO_POST_ENABLED env var).
 
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { GoogleGenAI } from '@google/genai'
 
 export interface SNSDraft {
   twitter:  string  // ≤ 280 chars
@@ -15,8 +15,7 @@ export async function generateSNSDraft(input: {
   url:         string
   tags:        string[]
 }): Promise<SNSDraft> {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GENERATIVE_AI_API_KEY!)
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
+  const ai = new GoogleGenAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY })
 
   const tagStr = input.tags.map((t) => `#${t}`).join(' ')
 
@@ -39,8 +38,12 @@ URL: ${input.url}
   "linkedin": "..."
 }`
 
-  const result = await model.generateContent(prompt)
-  const raw    = result.response.text().trim()
-  const json   = raw.replace(/^```json\s*/i, '').replace(/```\s*$/, '')
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash',
+    contents: prompt,
+  })
+
+  const raw  = (response.text ?? '').trim()
+  const json = raw.replace(/^```json\s*/i, '').replace(/```\s*$/, '')
   return JSON.parse(json) as SNSDraft
 }
