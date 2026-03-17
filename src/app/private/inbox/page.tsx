@@ -78,17 +78,12 @@ function Section({ title, items, accent }: { title: string; items: MessageRow[];
       </h2>
       <ul className="space-y-3">
         {items.map((m) => (
-          <li key={m.id} className="relative">
+          <li key={m.id} className="border border-gray-200 rounded-lg p-4 text-sm hover:border-blue-400 hover:shadow-sm transition-all flex items-start gap-3">
             <Link
               href={`/private/inbox/${m.id}`}
-              className="border border-gray-200 rounded-lg p-4 text-sm hover:border-blue-400 hover:shadow-sm transition-all cursor-pointer block"
+              className="flex-1 min-w-0 cursor-pointer"
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="font-mono text-xs text-gray-400">{m.id.slice(0, 8)}…</span>
-                <span className="text-xs text-gray-400">
-                  {m.telegram_date ? m.telegram_date.slice(0, 16).replace('T', ' ') : ''}
-                </span>
-              </div>
+              <span className="font-mono text-xs text-gray-400 block mb-1">{m.id.slice(0, 8)}…</span>
               <p className="text-gray-700 line-clamp-2">
                 {m.text_content ?? `(${m.message_type})`}
               </p>
@@ -102,7 +97,10 @@ function Section({ title, items, accent }: { title: string; items: MessageRow[];
                 )}
               </div>
             </Link>
-            <div className="absolute top-3 right-3">
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <time className="font-mono text-xs text-gray-400">
+                {m.telegram_date ? m.telegram_date.slice(0, 16).replace('T', ' ') : ''}
+              </time>
               <DeleteButton id={m.id} />
             </div>
           </li>

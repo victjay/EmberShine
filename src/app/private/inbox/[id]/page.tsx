@@ -27,19 +27,26 @@ export default async function InboxDetailPage({ params }: Props) {
     .limit(1)
     .single()
 
-  if (!draft?.github_path) notFound()
+  const section = draft?.section ?? inbox.target_section
 
-  // 3. github_path에서 slug 추출
-  // 예: content/blog/2026-03-16-my-post.md → 2026-03-16-my-post
-  const slug = draft.github_path.split('/').pop()?.replace(/\.md$/, '')
-  if (!slug) notFound()
+  // target_section이 없으면 inbox 목록으로
+  if (!section) redirect('/private/inbox')
 
-  // 4. section에 따라 편집 페이지로 redirect
-  const section = draft.section ?? inbox.target_section
+  // 3. github_path가 있으면 편집 페이지로, 없으면 새 글 작성으로
+  if (draft?.github_path) {
+    // content/blog/2026-03-16-my-post.md → 2026-03-16-my-post
+    const slug = draft.github_path.split('/').pop()?.replace(/\.md$/, '')
+    if (slug) {
+      if (section === 'blog')      redirect(`/private/blog/edit/${slug}`)
+      if (section === 'stories')   redirect(`/private/stories/edit/${slug}`)
+      if (section === 'portfolio') redirect(`/private/portfolio/edit/${slug}`)
+    }
+  }
 
-  if (section === 'blog')      redirect(`/private/blog/edit/${slug}`)
-  if (section === 'stories')   redirect(`/private/stories/edit/${slug}`)
-  if (section === 'portfolio') redirect(`/private/portfolio/edit/${slug}`)
+  // fallback: draft 없거나 slug 추출 실패 → 새 글 작성 페이지
+  if (section === 'blog')      redirect('/private/blog/new')
+  if (section === 'stories')   redirect('/private/stories/new')
+  if (section === 'portfolio') redirect('/private/portfolio/new')
 
   notFound()
 }
