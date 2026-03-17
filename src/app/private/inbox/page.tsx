@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { createServiceClient } from '@/lib/supabase/server'
-import { deleteInboxMessage } from './actions'
+import DeleteButton from './DeleteButton'
 
 export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
   const { saved } = await searchParams
@@ -102,17 +102,9 @@ function Section({ title, items, accent }: { title: string; items: MessageRow[];
                 )}
               </div>
             </Link>
-            {/* 삭제 버튼 — Link 바깥, 우측 상단 절대 위치 */}
-            <form action={deleteInboxMessage} className="absolute top-3 right-3">
-              <input type="hidden" name="id" value={m.id} />
-              <button
-                type="submit"
-                onClick={(e) => e.stopPropagation()}
-                className="px-2 py-1 text-xs text-red-400 hover:text-red-600 hover:bg-red-50 border border-red-200 rounded transition-colors"
-              >
-                삭제
-              </button>
-            </form>
+            <div className="absolute top-3 right-3">
+              <DeleteButton id={m.id} />
+            </div>
           </li>
         ))}
       </ul>
