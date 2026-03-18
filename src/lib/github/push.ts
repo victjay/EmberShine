@@ -22,6 +22,18 @@ function getGitHubConfig() {
   return { token, repo: match[1] }
 }
 
+export async function getFileContent(path: string): Promise<string | null> {
+  const { token, repo } = getGitHubConfig()
+  const res = await fetch(
+    `https://api.github.com/repos/${repo}/contents/${path}`,
+    { headers: { Authorization: `token ${token}` } }
+  )
+  if (res.status === 404) return null
+  if (!res.ok) throw new Error(`GitHub 파일 읽기 실패: ${res.status}`)
+  const data = await res.json() as { content: string }
+  return Buffer.from(data.content.replace(/\n/g, ''), 'base64').toString('utf8')
+}
+
 export async function checkFileExists(path: string): Promise<boolean> {
   const { token, repo } = getGitHubConfig()
   const res = await fetch(

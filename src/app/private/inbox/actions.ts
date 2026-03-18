@@ -5,7 +5,8 @@ import { createClient } from '@/lib/supabase/server'
 import { assertAdmin } from '@/lib/auth/admin'
 import { revalidatePath } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { checkFileExists, pushMultipleToGitHub } from '@/lib/github/push'
+import { checkFileExists, getFileContent, pushMultipleToGitHub, FileEntry } from '@/lib/github/push'
+import matter from 'gray-matter'
 
 export async function deleteInboxMessage(formData: FormData): Promise<void> {
   await assertAdmin()
@@ -90,11 +91,50 @@ export async function cancelDeletePost(jobId: string) {
   await assertAdmin()
 
   const adminSupabase = createAdminClient()
+
+  // 1. admin_jobs에서 target_section, target_slug 조회
+  const { data: job } = await adminSupabase
+    .from('admin_jobs')
+    .select('target_section, target_slug')
+    .eq('id', jobId)
+    .eq('status', 'pending')
+    .single()
+
+  if (job) {
+    const { target_section: section, target_slug: slug } = job
+    const koPath = `content/${section}/${slug}.md`
+    const enPath = `content/${section}/${slug}.en.md`
+
+    // 2. GitHub .md 읽기 → pending_delete 제거
+    const koRaw = await getFileContent(koPath)
+    if (koRaw) {
+      const { data: koData, content: koBody } = matter(koRaw)
+      delete koData.pending_delete
+      const files: FileEntry[] = [{ path: koPath, content: matter.stringify(koBody, koData) }]
+
+      // 3. .en.md 존재 시 동일하게 처리
+      try {
+        const enRaw = await getFileContent(enPath)
+        if (enRaw) {
+          const { data: enData, content: enBody } = matter(enRaw)
+          delete enData.pending_delete
+          files.push({ path: enPath, content: matter.stringify(enBody, enData) })
+        }
+      } catch {
+        // EN 처리 실패 시 KO만 진행
+      }
+
+      // 4. 단일 commit push
+      await pushMultipleToGitHub({ files, message: `Cancel pending delete: ${slug}` })
+    }
+  }
+
+  // 5. admin_jobs status → 'canceled'
   await adminSupabase
     .from('admin_jobs')
     .update({ status: 'canceled' })
     .eq('id', jobId)
-    .eq('status', 'pending')
 
+  // 6. revalidatePath
   revalidatePath('/private/inbox')
 }

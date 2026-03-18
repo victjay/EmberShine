@@ -9,6 +9,7 @@ import { needsFallbackBadge } from '@/lib/i18n/fallback'
 import SectionControls from '@/components/SectionControls'
 import DeleteButton from '@/components/DeleteButton'
 import { requestDeletePost } from '@/app/private/portfolio/actions'
+import { createClient } from '@/lib/supabase/server'
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>
@@ -60,6 +61,12 @@ export default async function PortfolioPostPage({ params }: Props) {
   const post = await getPostBySlug('portfolio', slug, lang)
   if (!post) notFound()
 
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAdmin = user?.email === process.env.ADMIN_EMAIL
+
+  if (post.pending_delete === true && !isAdmin) notFound()
+
   const showFallback = needsFallbackBadge(post, lang)
 
   return (
@@ -85,6 +92,11 @@ export default async function PortfolioPostPage({ params }: Props) {
           />
         </div>
 
+        {post.pending_delete === true && (
+          <span className="text-xs text-amber-700 border border-amber-300 bg-amber-50 rounded px-2 py-0.5 mb-3 inline-block">
+            ⚠️ 삭제 대기 중
+          </span>
+        )}
         {showFallback && (
           <span className="text-xs text-slate-400 border border-slate-200 rounded px-2 py-0.5 mb-3 inline-block">
             원문 (한국어)

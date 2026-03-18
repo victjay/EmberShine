@@ -11,6 +11,7 @@ import DeleteButton from '@/components/DeleteButton'
 import Comments from '@/components/Comments'
 import RelatedPosts from '@/components/RelatedPosts'
 import { requestDeletePost } from '@/app/private/stories/actions'
+import { createClient } from '@/lib/supabase/server'
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>
@@ -63,6 +64,12 @@ export default async function StoryPostPage({ params }: Props) {
   const post = await getPostBySlug('stories', slug, lang)
   if (!post) notFound()
 
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  const isAdmin = user?.email === process.env.ADMIN_EMAIL
+
+  if (post.pending_delete === true && !isAdmin) notFound()
+
   const showFallback = needsFallbackBadge(post, lang)
 
   return (
@@ -111,6 +118,11 @@ export default async function StoryPostPage({ params }: Props) {
           />
         </div>
 
+        {post.pending_delete === true && (
+          <span className="text-xs text-amber-700 border border-amber-300 bg-amber-50 rounded px-2 py-0.5 mb-3 inline-block">
+            ⚠️ 삭제 대기 중
+          </span>
+        )}
         {showFallback && (
           <span className="text-xs text-slate-400 border border-slate-200 rounded px-2 py-0.5 mb-3 inline-block">
             원문 (한국어)

@@ -5,11 +5,12 @@ import { revalidatePath } from 'next/cache'
 import { assertAdmin } from '@/lib/auth/admin'
 import { safeSlug, ensureUniquePostId } from '@/lib/content/slug-utils'
 import { buildMarkdown } from '@/lib/content/builder'
-import { pushMultipleToGitHub, FileEntry } from '@/lib/github/push'
+import { pushMultipleToGitHub, FileEntry, getFileContent } from '@/lib/github/push'
 import { translatePost } from '@/lib/ai/translate'
 import { buildEnMarkdown } from '@/lib/content/en-file'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import matter from 'gray-matter'
 
 export async function createBlogPost(formData: FormData): Promise<{ error: string } | undefined> {
   await assertAdmin()
@@ -200,34 +201,63 @@ export async function requestDeletePost(
 ): Promise<{ error?: string } | void> {
   await assertAdmin()
 
-  const postId   = formData.get('postId') as string
-  const section  = formData.get('section') as string
+  const postId  = formData.get('postId') as string
+  const section = formData.get('section') as string
   if (!postId || !section) return { error: '잘못된 요청입니다.' }
 
+  const koPath = `content/${section}/${postId}.md`
+  const enPath = `content/${section}/${postId}.en.md`
+
+  // 1. GitHub에서 KO 파일 읽기
+  let koRaw: string | null
+  try {
+    koRaw = await getFileContent(koPath)
+  } catch (e) {
+    return { error: `GitHub 파일 읽기 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
+  }
+  if (!koRaw) return { error: '파일을 찾을 수 없습니다.' }
+
+  // 2. gray-matter 파싱 + 중복 체크
+  const { data: koData, content: koBody } = matter(koRaw)
+  if (koData.pending_delete === true) return { error: '이미 삭제 대기 중입니다.' }
+
+  // 3. pending_delete 추가 후 재직렬화
+  koData.pending_delete = true
+  const files: FileEntry[] = [{ path: koPath, content: matter.stringify(koBody, koData) }]
+
+  // 4. EN 파일 존재 시 동일하게 처리
+  try {
+    const enRaw = await getFileContent(enPath)
+    if (enRaw) {
+      const { data: enData, content: enBody } = matter(enRaw)
+      enData.pending_delete = true
+      files.push({ path: enPath, content: matter.stringify(enBody, enData) })
+    }
+  } catch {
+    // EN 파일 처리 실패 시 KO만 진행
+  }
+
+  // 5. push (성공 후에만 admin_jobs insert)
+  try {
+    await pushMultipleToGitHub({ files, message: `Mark pending delete: ${postId}` })
+  } catch (e) {
+    return { error: `GitHub push 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
+  }
+
+  // 6. admin_jobs insert
   const adminSupabase = createAdminClient()
   const authClient = await createClient()
   const { data: { user } } = await authClient.auth.getUser()
 
-  const { data: existing } = await adminSupabase
-    .from('admin_jobs')
-    .select('id')
-    .eq('type', 'delete_post')
-    .eq('target_section', section)
-    .eq('target_slug', postId)
-    .in('status', ['pending', 'approved', 'executing'])
-    .maybeSingle()
-
-  if (existing) return { error: '이미 삭제 대기 중인 요청이 있습니다.' }
-
-  const { error } = await adminSupabase.from('admin_jobs').insert({
+  const { error: insertError } = await adminSupabase.from('admin_jobs').insert({
     type: 'delete_post',
     target_section: section,
     target_slug: postId,
     requested_by: user?.email,
     status: 'pending',
   })
+  if (insertError) return { error: '삭제 요청 기록 실패: ' + insertError.message }
 
-  if (error) return { error: '삭제 요청 실패: ' + error.message }
-
+  // 7. redirect (try/catch 바깥)
   redirect('/private/inbox')
 }

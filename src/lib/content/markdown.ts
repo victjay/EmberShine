@@ -17,6 +17,7 @@ export interface PostMeta {
   locale?: Locale
   translationStatus?: 'translated' | 'stale' | 'failed' | 'missing'
   translation_locked?: boolean
+  pending_delete?: boolean
   [key: string]: unknown
 }
 
@@ -91,6 +92,6 @@ export async function getAllPosts(section: string, locale?: Locale): Promise<Pos
   const slugs = getPostSlugs(section)
   const posts = await Promise.all(slugs.map((slug) => getPostBySlug(section, slug, locale)))
   return posts
-    .filter((p): p is Post => p !== null)
+    .filter((p): p is Post => p !== null && p.pending_delete !== true)
     .sort((a, b) => getPostDate(b) - getPostDate(a))
 }
