@@ -15,7 +15,8 @@ export interface PostMeta {
   // locale-aware fields
   hasTranslation?: boolean
   locale?: Locale
-  translationStatus?: 'translated' | 'failed' | 'missing'
+  translationStatus?: 'translated' | 'stale' | 'failed' | 'missing'
+  translation_locked?: boolean
   [key: string]: unknown
 }
 
@@ -43,7 +44,20 @@ export async function getPostBySlug(
   if (locale === 'en' && fs.existsSync(enPath)) {
     const raw = fs.readFileSync(enPath, 'utf8')
     const { data, content } = matter(raw)
-    return { ...(data as PostMeta), slug, section, content, hasTranslation: true, locale: 'en' }
+    const post: Post = { ...(data as PostMeta), slug, section, content, hasTranslation: true, locale: 'en' }
+
+    if (post.translation_locked === true) {
+      post.translationStatus = 'translated'
+    } else {
+      const src = post.source_updated_at as string | undefined
+      const trn = post.translated_from_updated_at as string | undefined
+      // YYYY-MM-DD 문자열 비교 = 날짜 비교와 동일하게 동작
+      if (!src || !trn) post.translationStatus = 'missing'
+      else if (src > trn) post.translationStatus = 'stale'
+      else post.translationStatus = 'translated'
+    }
+
+    return post
   }
 
   // KO (default) or EN fallback when .en.md is missing

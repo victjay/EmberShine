@@ -109,6 +109,11 @@ export default async function StoryPostPage({ params }: Props) {
             원문 (한국어)
           </span>
         )}
+        {post.translationStatus === 'stale' && lang === 'en' && (
+          <span className="text-xs text-amber-600 border border-amber-300 bg-amber-50 rounded px-2 py-0.5 mb-4 inline-block">
+            번역이 오래됐습니다 (원문이 수정됐습니다)
+          </span>
+        )}
 
         {post.description && (
           <p className="text-lg text-slate-500 leading-relaxed">

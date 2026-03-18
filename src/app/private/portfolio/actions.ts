@@ -37,6 +37,7 @@ export async function createProject(formData: FormData): Promise<{ error: string
     status,
     ...(description   ? { description }  : {}),
     ...(tags.length > 0 ? { tags }        : {}),
+    source_updated_at: new Date().toISOString().split('T')[0],
   }
 
   const content = buildMarkdown(frontmatter, body)
@@ -100,13 +101,15 @@ export async function updateProject(formData: FormData): Promise<{ error: string
   const slug = safeSlug(title)
   if (!slug) return { error: '유효한 제목을 입력해주세요.' }
 
+  const today = new Date().toISOString().split('T')[0]
   const frontmatter: Record<string, unknown> = {
     title,
     date,
     status,
     ...(description   ? { description }  : {}),
     ...(tags.length > 0 ? { tags }        : {}),
-    updatedAt: new Date().toISOString().split('T')[0],
+    updatedAt: today,
+    source_updated_at: today,
   }
 
   const content = buildMarkdown(frontmatter, body)
