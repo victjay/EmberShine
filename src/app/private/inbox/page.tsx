@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { createServiceClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import DeleteButton from './DeleteButton'
+import SubmitButton from '@/components/SubmitButton'
+import { executeDeletePost } from './actions'
 
 export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string; commit?: string }> }) {
   const { saved, commit: commitSha } = await searchParams
@@ -18,6 +20,15 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
       .maybeSingle()
     deployment = data
   }
+
+  // 삭제 대기 중인 admin_jobs 조회
+  const adminSupabaseForJobs = createAdminClient()
+  const { data: deleteJobs } = await adminSupabaseForJobs
+    .from('admin_jobs')
+    .select('id, target_section, target_slug, requested_by, created_at')
+    .eq('type', 'delete_post')
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
 
   const { data: messages } = await supabase
     .from('inbox_messages')
@@ -50,6 +61,41 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
           }
         </div>
       )}
+      {deleteJobs && deleteJobs.length > 0 && (
+        <section className="mb-10">
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
+            <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+            삭제 대기 ({deleteJobs.length})
+          </h2>
+          <ul className="space-y-3">
+            {deleteJobs.map((job) => {
+              // bind 패턴으로 jobId 전달 — form action과 Server Action 연결
+              const deleteAction = executeDeletePost.bind(null, job.id) as unknown as (formData: FormData) => Promise<void>
+              return (
+                <li key={job.id} className="border border-red-200 rounded-lg p-4 text-sm bg-red-50 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-mono text-xs text-gray-400 mb-1">{job.id.slice(0, 8)}…</p>
+                    <p className="text-gray-700 font-medium">
+                      {job.target_section} / {job.target_slug}
+                    </p>
+                    {job.requested_by && (
+                      <p className="text-xs text-gray-400 mt-1">요청: {job.requested_by}</p>
+                    )}
+                  </div>
+                  <form action={deleteAction}>
+                    <SubmitButton
+                      label="최종 삭제 확인"
+                      loadingLabel="삭제 중..."
+                      className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                    />
+                  </form>
+                </li>
+              )
+            })}
+          </ul>
+        </section>
+      )}
+
       <h1 className="text-3xl font-bold mb-2">Inbox</h1>
       <p className="text-sm text-gray-500 mb-8">
         총 {messages?.length ?? 0}개 — 대기 {pending.length} / 승인 {approved.length} / 거절 {rejected.length} / 비공개 {private_.length}

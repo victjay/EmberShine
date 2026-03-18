@@ -8,6 +8,7 @@ import { pushMultipleToGitHub, FileEntry } from '@/lib/github/push'
 import { translatePost } from '@/lib/ai/translate'
 import { buildEnMarkdown } from '@/lib/content/en-file'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { createClient } from '@/lib/supabase/server'
 
 export async function createStory(formData: FormData): Promise<{ error: string } | undefined> {
   await assertAdmin()
@@ -202,4 +203,43 @@ export async function updateStory(formData: FormData): Promise<{ error: string }
 
   // 6. redirect
   redirect(`/private/inbox?saved=1&commit=${commitSha}`)
+}
+
+// ※ useActionState와 연결 — 반드시 (prevState, formData) 시그니처 사용
+export async function requestDeletePost(
+  prevState: { error?: string } | null,
+  formData: FormData
+): Promise<{ error?: string } | void> {
+  await assertAdmin()
+
+  const postId   = formData.get('postId') as string
+  const section  = formData.get('section') as string
+  if (!postId || !section) return { error: '잘못된 요청입니다.' }
+
+  const adminSupabase = createAdminClient()
+  const authClient = await createClient()
+  const { data: { user } } = await authClient.auth.getUser()
+
+  const { data: existing } = await adminSupabase
+    .from('admin_jobs')
+    .select('id')
+    .eq('type', 'delete_post')
+    .eq('target_section', section)
+    .eq('target_slug', postId)
+    .in('status', ['pending', 'approved', 'executing'])
+    .maybeSingle()
+
+  if (existing) return { error: '이미 삭제 대기 중인 요청이 있습니다.' }
+
+  const { error } = await adminSupabase.from('admin_jobs').insert({
+    type: 'delete_post',
+    target_section: section,
+    target_slug: postId,
+    requested_by: user?.email,
+    status: 'pending',
+  })
+
+  if (error) return { error: '삭제 요청 실패: ' + error.message }
+
+  redirect('/private/inbox')
 }

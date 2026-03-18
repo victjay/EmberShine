@@ -31,18 +31,18 @@
       ]
     },
     {
-      "slug": "2026-03-18-83c2cf0c",
+      "slug": "2026-03-18-19088019.en",
       "section": "blog",
-      "title": "겨울을 지켜줄 보일러의 극적 부활!",
+      "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
       "date": "2026-03-18",
       "tags": [
-        "보일러",
-        "겨울",
-        "난방",
-        "일상",
-        "따뜻함",
-        "집스타그램",
-        "고장"
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
       ]
     }
   ],
@@ -198,12 +198,18 @@
       ]
     },
     {
-      "slug": "2026-03-16-test-2",
+      "slug": "2026-03-18-19088019.en",
       "section": "blog",
-      "title": "test",
-      "date": "2026-03-16",
+      "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
+      "date": "2026-03-18",
       "tags": [
-        "test"
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
       ]
     }
   ],
@@ -606,6 +612,100 @@
       ]
     }
   ],
+  "blog/2026-03-18-19088019.en": [
+    {
+      "slug": "2026-03-18-19088019",
+      "section": "blog",
+      "title": "하랑이의 '특별한' 성적표: 소니아 선생님의 마음 담긴 이야기",
+      "date": "2026-03-18",
+      "tags": [
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
+      ]
+    },
+    {
+      "slug": "2026-03-12-b06118dc",
+      "section": "blog",
+      "title": "내 차, 나의 작은 세상",
+      "date": "2026-03-12",
+      "tags": [
+        "일상",
+        "생각",
+        "자동차",
+        "드라이브",
+        "나만의공간",
+        "추억",
+        "EmberShine"
+      ]
+    },
+    {
+      "slug": "2026-03-17-5cd27471",
+      "section": "blog",
+      "title": "요즘 AI, 어디까지 왔니? (feat. 나의 생각)",
+      "date": "2026-03-17",
+      "tags": [
+        "AI",
+        "인공지능",
+        "트렌드",
+        "기술",
+        "미래",
+        "개인적인생각",
+        "EmberShine"
+      ]
+    }
+  ],
+  "blog/2026-03-18-19088019": [
+    {
+      "slug": "2026-03-18-19088019.en",
+      "section": "blog",
+      "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
+      "date": "2026-03-18",
+      "tags": [
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
+      ]
+    },
+    {
+      "slug": "2026-03-12-b06118dc",
+      "section": "blog",
+      "title": "내 차, 나의 작은 세상",
+      "date": "2026-03-12",
+      "tags": [
+        "일상",
+        "생각",
+        "자동차",
+        "드라이브",
+        "나만의공간",
+        "추억",
+        "EmberShine"
+      ]
+    },
+    {
+      "slug": "2026-03-17-5cd27471",
+      "section": "blog",
+      "title": "요즘 AI, 어디까지 왔니? (feat. 나의 생각)",
+      "date": "2026-03-17",
+      "tags": [
+        "AI",
+        "인공지능",
+        "트렌드",
+        "기술",
+        "미래",
+        "개인적인생각",
+        "EmberShine"
+      ]
+    }
+  ],
   "blog/2026-03-18-3-18-2026-3-42-test.en": [
     {
       "slug": "2026-03-18-3-18-2026-3-42-test",
@@ -869,6 +969,72 @@
       ]
     }
   ],
+  "blog/2026-03-18-tgtg.en": [
+    {
+      "slug": "2026-03-18-tgtg",
+      "section": "blog",
+      "title": "tgtg",
+      "date": "2026-03-18",
+      "tags": []
+    },
+    {
+      "slug": "2026-03-12-b06118dc",
+      "section": "blog",
+      "title": "내 차, 나의 작은 세상",
+      "date": "2026-03-12",
+      "tags": [
+        "일상",
+        "생각",
+        "자동차",
+        "드라이브",
+        "나만의공간",
+        "추억",
+        "EmberShine"
+      ]
+    },
+    {
+      "slug": "2026-03-16-test-2",
+      "section": "blog",
+      "title": "test",
+      "date": "2026-03-16",
+      "tags": [
+        "test"
+      ]
+    }
+  ],
+  "blog/2026-03-18-tgtg": [
+    {
+      "slug": "2026-03-18-tgtg.en",
+      "section": "blog",
+      "title": "tgtg",
+      "date": "2026-03-18",
+      "tags": []
+    },
+    {
+      "slug": "2026-03-12-b06118dc",
+      "section": "blog",
+      "title": "내 차, 나의 작은 세상",
+      "date": "2026-03-12",
+      "tags": [
+        "일상",
+        "생각",
+        "자동차",
+        "드라이브",
+        "나만의공간",
+        "추억",
+        "EmberShine"
+      ]
+    },
+    {
+      "slug": "2026-03-16-test-2",
+      "section": "blog",
+      "title": "test",
+      "date": "2026-03-16",
+      "tags": [
+        "test"
+      ]
+    }
+  ],
   "blog/2026-03-18-tt.en": [
     {
       "slug": "2026-03-12-b06118dc",
@@ -989,6 +1155,21 @@
       ]
     },
     {
+      "slug": "2026-03-18-19088019.en",
+      "section": "blog",
+      "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
+      "date": "2026-03-18",
+      "tags": [
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
+      ]
+    },
+    {
       "slug": "tokyo-march-2026",
       "section": "stories",
       "title": "Tokyo in Early Spring",
@@ -997,21 +1178,6 @@
         "travel",
         "Japan",
         "street"
-      ]
-    },
-    {
-      "slug": "2026-03-12-b06118dc",
-      "section": "blog",
-      "title": "내 차, 나의 작은 세상",
-      "date": "2026-03-12",
-      "tags": [
-        "일상",
-        "생각",
-        "자동차",
-        "드라이브",
-        "나만의공간",
-        "추억",
-        "EmberShine"
       ]
     }
   ],
@@ -1059,6 +1225,21 @@
       "tags": []
     },
     {
+      "slug": "2026-03-18-19088019.en",
+      "section": "blog",
+      "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
+      "date": "2026-03-18",
+      "tags": [
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
+      ]
+    },
+    {
       "slug": "2026-03-12-b06118dc",
       "section": "blog",
       "title": "내 차, 나의 작은 세상",
@@ -1071,15 +1252,6 @@
         "나만의공간",
         "추억",
         "EmberShine"
-      ]
-    },
-    {
-      "slug": "2026-03-16-test-2",
-      "section": "blog",
-      "title": "test",
-      "date": "2026-03-16",
-      "tags": [
-        "test"
       ]
     }
   ],
@@ -1125,6 +1297,21 @@
       "tags": []
     },
     {
+      "slug": "2026-03-18-19088019.en",
+      "section": "blog",
+      "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
+      "date": "2026-03-18",
+      "tags": [
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
+      ]
+    },
+    {
       "slug": "2026-03-12-b06118dc",
       "section": "blog",
       "title": "내 차, 나의 작은 세상",
@@ -1137,15 +1324,6 @@
         "나만의공간",
         "추억",
         "EmberShine"
-      ]
-    },
-    {
-      "slug": "2026-03-16-test-2",
-      "section": "blog",
-      "title": "test",
-      "date": "2026-03-16",
-      "tags": [
-        "test"
       ]
     }
   ],
@@ -1232,6 +1410,21 @@
       ]
     },
     {
+      "slug": "2026-03-18-19088019.en",
+      "section": "blog",
+      "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
+      "date": "2026-03-18",
+      "tags": [
+        "하랑이",
+        "소니아선생님",
+        "특별한성적표",
+        "아이의성장",
+        "따뜻한이야기",
+        "육아일기",
+        "EmberShine"
+      ]
+    },
+    {
       "slug": "supabase-rls-guide",
       "section": "blog",
       "title": "Supabase RLS: Row-Level Security in Practice",
@@ -1240,21 +1433,6 @@
         "Supabase",
         "Security",
         "PostgreSQL"
-      ]
-    },
-    {
-      "slug": "2026-03-12-b06118dc",
-      "section": "blog",
-      "title": "내 차, 나의 작은 세상",
-      "date": "2026-03-12",
-      "tags": [
-        "일상",
-        "생각",
-        "자동차",
-        "드라이브",
-        "나만의공간",
-        "추억",
-        "EmberShine"
       ]
     }
   ]

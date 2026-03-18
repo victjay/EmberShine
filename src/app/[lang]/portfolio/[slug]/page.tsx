@@ -7,6 +7,8 @@ import { getDictionary } from '../../../../../messages'
 import { getPostBySlug, getAllPosts } from '@/lib/content'
 import { needsFallbackBadge } from '@/lib/i18n/fallback'
 import SectionControls from '@/components/SectionControls'
+import DeleteButton from '@/components/DeleteButton'
+import { requestDeletePost } from '@/app/private/portfolio/actions'
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>
@@ -75,6 +77,11 @@ export default async function PortfolioPostPage({ params }: Props) {
           <SectionControls
             newHref="/private/portfolio/new"
             editHref={`/private/portfolio/edit/${slug}`}
+          />
+          <DeleteButton
+            postId={slug}
+            section="portfolio"
+            requestDeleteAction={requestDeletePost}
           />
         </div>
 

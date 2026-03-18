@@ -7,8 +7,10 @@ import { isValidLocale } from '@/lib/i18n/locale'
 import { getPostBySlug, getAllPosts, getPostSlugs } from '@/lib/content/markdown'
 import { needsFallbackBadge } from '@/lib/i18n/fallback'
 import SectionControls from '@/components/SectionControls'
+import DeleteButton from '@/components/DeleteButton'
 import Comments from '@/components/Comments'
 import RelatedPosts from '@/components/RelatedPosts'
+import { requestDeletePost } from '@/app/private/blog/actions'
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>
@@ -81,6 +83,11 @@ export default async function BlogPostPage({ params }: Props) {
           <SectionControls
             newHref={`/${lang}/private/blog/new`}
             editHref={`/${lang}/private/blog/edit/${slug}`}
+          />
+          <DeleteButton
+            postId={slug}
+            section="blog"
+            requestDeleteAction={requestDeletePost}
           />
         </div>
         {showFallback && (

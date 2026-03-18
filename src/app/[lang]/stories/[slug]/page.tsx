@@ -7,8 +7,10 @@ import { getDictionary } from '../../../../../messages'
 import { getPostBySlug, getAllPosts } from '@/lib/content'
 import { needsFallbackBadge } from '@/lib/i18n/fallback'
 import SectionControls from '@/components/SectionControls'
+import DeleteButton from '@/components/DeleteButton'
 import Comments from '@/components/Comments'
 import RelatedPosts from '@/components/RelatedPosts'
+import { requestDeletePost } from '@/app/private/stories/actions'
 
 interface Props {
   params: Promise<{ lang: string; slug: string }>
@@ -101,6 +103,11 @@ export default async function StoryPostPage({ params }: Props) {
           <SectionControls
             newHref="/private/stories/new"
             editHref={`/private/stories/edit/${slug}`}
+          />
+          <DeleteButton
+            postId={slug}
+            section="stories"
+            requestDeleteAction={requestDeletePost}
           />
         </div>
 
