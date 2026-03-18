@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import SubmitButton from '@/components/SubmitButton'
 
 interface DefaultValues {
   postId?:       string
@@ -145,13 +146,11 @@ export default function StoriesPostForm({
         </div>
 
         <div className="flex gap-3">
-          <button
-            type="submit"
-            disabled={pending}
+          <SubmitButton
+            label="Save as Draft"
+            loadingLabel="저장 중..."
             className="px-5 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
-          >
-            {pending ? '저장 중...' : submitLabel}
-          </button>
+          />
           <Link
             href="/stories"
             className="px-5 py-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors"
