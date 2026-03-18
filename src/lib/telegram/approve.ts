@@ -152,7 +152,7 @@ export async function runApprovalPipeline(inboxId: string): Promise<void> {
 
   // ── 7. Confirm ────────────────────────────────────────────────────────────
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? ''
-  const postUrl = `${siteUrl}/${section}/${slug}`
+  const postUrl = `${siteUrl}/ko/${section}/${slug}`
   await sendTelegramMessage(
     `✅ 발행되었습니다. 배포 중... (2-5분 소요)\n\n` +
     `제목: ${title}\n` +
