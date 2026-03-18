@@ -1,10 +1,23 @@
 import Link from 'next/link'
 import { createServiceClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import DeleteButton from './DeleteButton'
 
-export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
-  const { saved } = await searchParams
+export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string; commit?: string }> }) {
+  const { saved, commit: commitSha } = await searchParams
   const supabase = createServiceClient()
+
+  // commit_sha 기준으로 해당 배포만 조회 (방금 저장한 글의 배포 상태만 표시)
+  let deployment = null
+  if (commitSha) {
+    const adminSupabase = createAdminClient()
+    const { data } = await adminSupabase
+      .from('deployments')
+      .select('status, triggered_at, completed_at')
+      .eq('commit_sha', commitSha)
+      .maybeSingle()
+    deployment = data
+  }
 
   const { data: messages } = await supabase
     .from('inbox_messages')
@@ -20,8 +33,21 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
   return (
     <main className="max-w-3xl mx-auto py-10 px-4">
       {saved === '1' && (
-        <div className="mb-6 px-4 py-3 bg-green-50 border border-green-200 rounded-lg text-sm text-green-800">
-          게시 요청 완료. Vercel 재빌드 완료 후 사이트에 반영됩니다.
+        <div className={`mb-6 px-4 py-3 rounded-lg text-sm border ${
+          !deployment || deployment.status === 'building'
+            ? 'bg-yellow-50 border-yellow-200 text-yellow-800'
+            : deployment.status === 'ready'
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+        }`}>
+          {!deployment || deployment.status === 'building'
+            ? '🔄 배포 진행 중... (보통 1~3분 소요)'
+            : deployment.status === 'ready'
+            ? '✅ 배포 완료! 라이브 사이트에 반영됐습니다.'
+            : deployment.status === 'canceled'
+            ? '⚠️ 배포가 취소됐습니다. Vercel 대시보드를 확인해주세요.'
+            : '❌ 배포 실패. Vercel 대시보드를 확인해주세요.'
+          }
         </div>
       )}
       <h1 className="text-3xl font-bold mb-2">Inbox</h1>

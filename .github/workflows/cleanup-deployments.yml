@@ -1,0 +1,21 @@
+name: Cleanup Stale Deployments
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'  # 15분마다 (GitHub Actions 최소 5분 제약 충족)
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mark stale deployments as error
+        run: |
+          # ubuntu-latest = GNU date → -d 옵션 동작
+          CUTOFF=$(date -u -d '15 minutes ago' +%Y-%m-%dT%H:%M:%SZ)
+          curl -s -X PATCH \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/deployments?status=eq.building&triggered_at=lt.${CUTOFF}" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d '{"status":"error"}'

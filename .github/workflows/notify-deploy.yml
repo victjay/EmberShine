@@ -1,0 +1,83 @@
+name: Notify Deploy Complete
+
+on:
+  push:
+    branches: [main]
+    paths: ['content/**']
+
+jobs:
+  wait-and-notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.actor != 'github-actions[bot]'
+
+    steps:
+      - name: Install Vercel CLI and confirm jq
+        run: |
+          npm install -g vercel@latest
+          # jq는 ubuntu-latest에 기본 포함, 명시적 확인
+          which jq || sudo apt-get install -y jq
+
+      - name: Find deployment by commit SHA
+        id: find_deployment
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          RAW=$(vercel list \
+            --meta githubCommitSha=${{ github.sha }} \
+            --token "$VERCEL_TOKEN" \
+            --yes \
+            --json \
+            2>/dev/null)
+
+          DEPLOYMENT=$(echo "$RAW" | jq -r '.[0].url // empty')
+
+          # null 또는 빈 문자열 처리
+          if [ -z "$DEPLOYMENT" ] || [ "$DEPLOYMENT" = "null" ]; then
+            echo "deployment=" >> $GITHUB_OUTPUT
+            echo "배포를 찾지 못했습니다. SHA: ${{ github.sha }}"
+          else
+            echo "deployment=$DEPLOYMENT" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Wait for deployment and detect status
+        id: wait_deploy
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "${{ steps.find_deployment.outputs.deployment }}" ]; then
+            echo "status=error" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # --timeout=10m: CLI 기본 3분 timeout 초과 방지
+          # exit code로 READY/ERROR 분기 (CANCELED 포함 실패는 error 처리)
+          if vercel inspect "${{ steps.find_deployment.outputs.deployment }}" \
+            --wait \
+            --timeout=10m \
+            --token "$VERCEL_TOKEN" \
+            --yes; then
+            echo "status=ready" >> $GITHUB_OUTPUT
+          else
+            echo "status=error" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update Supabase - ready
+        if: steps.wait_deploy.outputs.status == 'ready'
+        run: |
+          curl -s -X PATCH \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/deployments?commit_sha=eq.${{ github.sha }}&status=eq.building" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"status\":\"ready\",\"completed_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+
+      - name: Update Supabase - error
+        if: failure() || steps.wait_deploy.outputs.status == 'error'
+        run: |
+          curl -s -X PATCH \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/deployments?commit_sha=eq.${{ github.sha }}&status=eq.building" \
+            -H "apikey: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"status\":\"error\",\"completed_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
