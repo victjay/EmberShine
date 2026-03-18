@@ -1,14 +1,14 @@
 import type { Metadata } from 'next'
-import { getAllPosts } from '@/lib/content/markdown'
+import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { isValidLocale } from '@/lib/i18n/locale'
+import { getDictionary } from '../../../../messages'
+import { getAllPosts } from '@/lib/content'
 import PageHeading from '@/components/PageHeading'
 import SectionControls from '@/components/SectionControls'
 
-export const metadata: Metadata = {
-  title: 'Portfolio',
-  description: 'Projects built and shipped.',
-  alternates: { canonical: '/portfolio' },
-  openGraph: { title: 'Portfolio · EmberShine', url: '/portfolio' },
+interface Props {
+  params: Promise<{ lang: string }>
 }
 
 const SKILLS = [
@@ -18,8 +18,37 @@ const SKILLS = [
   { category: 'Infra', items: ['Vercel', 'Cloudflare R2', 'GitHub Actions'] },
 ]
 
-export default async function PortfolioPage() {
-  const projects = await getAllPosts('portfolio')
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { lang } = await params
+
+  if (!isValidLocale(lang)) return {}
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
+
+  return {
+    title: 'Portfolio',
+    description: 'Projects built and shipped.',
+    alternates: {
+      canonical: `/${lang}/portfolio`,
+      languages: {
+        ko: `/ko/portfolio`,
+        en: `/en/portfolio`,
+      },
+    },
+    openGraph: {
+      title: 'Portfolio · EmberShine',
+      url: `${siteUrl}/${lang}/portfolio`,
+    },
+  }
+}
+
+export default async function PortfolioPage({ params }: Props) {
+  const { lang } = await params
+
+  if (!isValidLocale(lang)) notFound()
+
+  const dict = await getDictionary(lang)
+  const projects = await getAllPosts('portfolio', lang)
 
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">
@@ -39,7 +68,7 @@ export default async function PortfolioPage() {
           <ul className="flex flex-col gap-4">
             {projects.map((post) => (
               <li key={post.slug}>
-                <Link href={`/portfolio/${post.slug}`} className="group block">
+                <Link href={`/${lang}/portfolio/${post.slug}`} className="group block">
                   <article className="border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-sm transition-all bg-white">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">

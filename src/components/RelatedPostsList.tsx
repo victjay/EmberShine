@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useLang } from '@/lib/i18n/context'
+import { useParams } from 'next/navigation'
 import { t } from '@/lib/i18n/strings'
 
 interface RelatedPost {
@@ -13,7 +13,8 @@ interface RelatedPost {
 }
 
 export default function RelatedPostsList({ posts }: { posts: RelatedPost[] }) {
-  const { lang } = useLang()
+  const params = useParams()
+  const lang = params.lang === 'en' ? 'en' : 'ko'
 
   return (
     <section className="mt-14 pt-10 border-t border-slate-100">
@@ -24,7 +25,7 @@ export default function RelatedPostsList({ posts }: { posts: RelatedPost[] }) {
         {posts.map((post) => (
           <li key={`${post.section}/${post.slug}`}>
             <Link
-              href={`/${post.section}/${post.slug}`}
+              href={`/${lang}/${post.section}/${post.slug}`}
               className="group flex items-start justify-between gap-4 p-4 border border-slate-100 rounded-lg hover:border-blue-300 hover:bg-blue-50/30 transition-all"
             >
               <div className="flex-1 min-w-0">

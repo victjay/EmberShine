@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { notFound } from 'next/navigation'
+import { isValidLocale } from '@/lib/i18n/locale'
+import RootShell from '@/components/RootShell'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
-import Providers from '@/components/Providers'
-import './globals.css'
+import '@/app/globals.css'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
 
@@ -49,9 +51,25 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export function generateStaticParams() {
+  return [{ lang: 'ko' }, { lang: 'en' }]
+}
+
+export default async function LangLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ lang: string }>
+}) {
+  const { lang } = await params
+
+  if (!isValidLocale(lang)) {
+    notFound()
+  }
+
   return (
-    <html lang="ko">
+    <html lang={lang}>
       <head>
         {/* Cloudflare Web Analytics */}
         <script
@@ -61,11 +79,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>
-          <Header />
+        <RootShell>
+          <Header lang={lang} />
           {children}
           <Footer />
-        </Providers>
+        </RootShell>
       </body>
     </html>
   )

@@ -1,32 +1,51 @@
 import type { Metadata } from 'next'
-import { getPostBySlug, getPostSlugs } from '@/lib/content/markdown'
-import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import { isValidLocale } from '@/lib/i18n/locale'
+import { getDictionary } from '../../../../../messages'
+import { getPostBySlug, getAllPosts } from '@/lib/content'
+import { needsFallbackBadge } from '@/lib/i18n/fallback'
+import SectionControls from '@/components/SectionControls'
 import Comments from '@/components/Comments'
 import RelatedPosts from '@/components/RelatedPosts'
-import SectionControls from '@/components/SectionControls'
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ lang: string; slug: string }>
 }
 
 export async function generateStaticParams() {
-  return getPostSlugs('stories').map((slug) => ({ slug }))
+  const posts = await getAllPosts('stories')
+  return posts.map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const post = await getPostBySlug('stories', slug)
+  const { lang, slug } = await params
+
+  if (!isValidLocale(lang)) return {}
+
+  const post = await getPostBySlug('stories', slug, lang)
   if (!post) return {}
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
+
   return {
     title: post.title,
-    description: post.description,
-    alternates: { canonical: `/stories/${slug}` },
+    description: post.description ?? '',
+    metadataBase: new URL(siteUrl),
+    alternates: {
+      canonical: `/${lang}/stories/${slug}`,
+      languages: {
+        ko: `/ko/stories/${slug}`,
+        en: `/en/stories/${slug}`,
+      },
+    },
     openGraph: {
       title: post.title,
-      description: post.description,
-      url: `/stories/${slug}`,
+      description: post.description ?? '',
+      locale: lang === 'ko' ? 'ko_KR' : 'en_US',
+      alternateLocale: lang === 'ko' ? ['en_US'] : ['ko_KR'],
+      url: `${siteUrl}/${lang}/stories/${slug}`,
       type: 'article',
       publishedTime: post.date,
     },
@@ -34,14 +53,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function StoryPostPage({ params }: Props) {
-  const { slug } = await params
-  const post = await getPostBySlug('stories', slug)
+  const { lang, slug } = await params
+
+  if (!isValidLocale(lang)) notFound()
+
+  const dict = await getDictionary(lang)
+  const post = await getPostBySlug('stories', slug, lang)
   if (!post) notFound()
+
+  const showFallback = needsFallbackBadge(post, lang)
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
       <Link
-        href="/stories"
+        href={`/${lang}/stories`}
         className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-blue-600 transition-colors font-mono mb-8"
       >
         ← Stories
@@ -73,8 +98,17 @@ export default async function StoryPostPage({ params }: Props) {
           <h1 className="text-4xl font-bold text-navy-900 leading-tight">
             {post.title}
           </h1>
-          <SectionControls newHref="/private/stories/new" editHref={`/private/stories/edit/${slug}`} />
+          <SectionControls
+            newHref="/private/stories/new"
+            editHref={`/private/stories/edit/${slug}`}
+          />
         </div>
+
+        {showFallback && (
+          <span className="text-xs text-slate-400 border border-slate-200 rounded px-2 py-0.5 mb-3 inline-block">
+            원문 (한국어)
+          </span>
+        )}
 
         {post.description && (
           <p className="text-lg text-slate-500 leading-relaxed">

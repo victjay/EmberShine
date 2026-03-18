@@ -1,5 +1,250 @@
 [
   {
+    "slug": "2026-03-18-3-18-2026-3-42-test.en",
+    "section": "blog",
+    "title": "3/18/2026 3:42 test",
+    "date": "2026-03-18",
+    "description": "3/18/2026 3:42 test",
+    "tags": [],
+    "excerpt": "3/18/2026 3:42 test"
+  },
+  {
+    "slug": "2026-03-18-3-18-2026-3-42-test",
+    "section": "blog",
+    "title": "3/18/2026 3:42 test",
+    "date": "2026-03-18",
+    "description": "3/18/2026 3:42 test",
+    "tags": [],
+    "excerpt": "3/18/2026 3:42 test"
+  },
+  {
+    "slug": "2026-03-17-353.en",
+    "section": "blog",
+    "title": "353",
+    "date": "2026-03-17",
+    "description": "353",
+    "tags": [],
+    "excerpt": "353 339"
+  },
+  {
+    "slug": "2026-03-17-353",
+    "section": "blog",
+    "title": "353",
+    "date": "2026-03-17",
+    "description": "353",
+    "tags": [],
+    "excerpt": "353\r 339"
+  },
+  {
+    "slug": "2026-03-17-5cd27471",
+    "section": "blog",
+    "title": "요즘 AI, 어디까지 왔니? (feat. 나의 생각)",
+    "date": "2026-03-17",
+    "description": "최신 AI 트렌드에 대한 EmberShine의 개인적인 시선. 빠르게 변화하는 AI 세상 속에서 우리가 주목해야 할 점들을 함께 이야기해봅니다.",
+    "tags": [
+      "AI",
+      "인공지능",
+      "트렌드",
+      "기술",
+      "미래",
+      "개인적인생각",
+      "EmberShine"
+    ],
+    "excerpt": "안녕, 에브리원! 오늘은 샤인이가 텔레그램으로 툭 던져준 'Ai 트렌드'라는 키워드 덕분에 하루 종일 생각에 잠겼어요. 요즘 정말 AI 얘기가 아닌 날이 없죠? 카페에서 친구들과 수다를 떨 때도, 출근길 팟캐스트를 들을 때도, 심지어 주말에 영화를 볼 때도 AI는 늘 우리 곁에 있는 것 같아요. 특히 최근 몇 년 사이에 AI 기술이 발전하는 속도를 보면 정"
+  },
+  {
+    "slug": "2026-03-17-asdf.en",
+    "section": "blog",
+    "title": "asdf",
+    "date": "2026-03-17",
+    "description": "asdf",
+    "tags": [
+      "asdf"
+    ],
+    "excerpt": "asdf"
+  },
+  {
+    "slug": "2026-03-17-asdf",
+    "section": "blog",
+    "title": "asdf",
+    "date": "2026-03-17",
+    "description": "asdf",
+    "tags": [
+      "asdf"
+    ],
+    "excerpt": "asdf"
+  },
+  {
+    "slug": "2026-03-17-cfe14619",
+    "section": "blog",
+    "title": "어? 보일러가 왜 혼자 켜졌지?",
+    "date": "2026-03-17",
+    "description": "갑자기 작동한 보일러, 그 이유가 궁금하신가요? EmberShine이 경험한 보일러 미스터리를 파헤치고, 예상치 못한 보일러 작동 원인과 간단한 점검 팁을 공유합니다. 우리 집 보일러, 문제 없을까요?",
+    "tags": [
+      "보일러",
+      "난방",
+      "생활팁",
+      "홈케어",
+      "주택관리",
+      "보일러고장",
+      "EmberShine일기"
+    ],
+    "excerpt": "여러분, 안녕하세요! EmberShine입니다. 평화로운 주말 저녁, 거실에 앉아있는데 갑자기 '윙~'하는 소리와 함께 보일러가 돌아가는 거예요. 어? 지금 보일러 켤 때가 아닌데? 너무 깜짝 놀라서 얼른 보일러 컨트롤러를 확인하고 혹시 뭔가 이상한 점이 있나 살펴보았죠. (물론 사진도 찍어뒀답니다!) 갑자기 보일러가 작동하는 이유, 뭘까요? 저는 순간 '"
+  },
+  {
+    "slug": "2026-03-17-test3-2",
+    "section": "blog",
+    "title": "test3",
+    "date": "2026-03-17",
+    "description": "test3",
+    "tags": [
+      "test3"
+    ],
+    "excerpt": "test3"
+  },
+  {
+    "slug": "2026-03-17-test3",
+    "section": "blog",
+    "title": "test3",
+    "date": "2026-03-17",
+    "description": "test3",
+    "tags": [
+      "test3"
+    ],
+    "excerpt": "test3"
+  },
+  {
+    "slug": "2026-03-17-나는테스트중이다.en",
+    "section": "blog",
+    "title": "I am testing",
+    "date": "2026-03-17",
+    "description": "I am testing",
+    "tags": [],
+    "excerpt": "I am testing the blog"
+  },
+  {
+    "slug": "2026-03-17-나는테스트중이다",
+    "section": "blog",
+    "title": "나는테스트중이다",
+    "date": "2026-03-17",
+    "description": "나는테스트중이다",
+    "tags": [],
+    "excerpt": "나는블로그테스트중이다"
+  },
+  {
+    "slug": "2026-03-17-나는테스트중이다2",
+    "section": "blog",
+    "title": "나는테스트중이다2",
+    "date": "2026-03-17",
+    "description": "나는테스트중이다2",
+    "tags": [],
+    "excerpt": "나는테스트중이다2"
+  },
+  {
+    "slug": "2026-03-17-삶의-작은-빛-조각",
+    "section": "blog",
+    "title": "차가운 침묵: 보일러 고장으로 멈춘 따뜻함",
+    "date": "2026-03-17",
+    "description": "EmberShine의 갑작스러운 보일러 고장 이야기. 차가운 집에서 따뜻함의 소중함을 깨달은 하루와 수리를 기다리는 솔직한 일상을 만나보세요.",
+    "tags": [
+      "보일러",
+      "고장",
+      "난방비상",
+      "일상이야기",
+      "겨울나기",
+      "생활팁",
+      "EmberShine"
+    ],
+    "excerpt": "여러분, 안녕하세요. EmberShine입니다.\r \r 수정동작완\r \r 따뜻하고 포근해야 할 집이 갑자기 얼음장처럼 차가워진다면 어떤 기분일까요? 어제 제가 딱 그 상황을 겪었습니다. 평화로운 주말을 맞이하려던 순간, '뚝' 소리와 함께 보일러가 멈춰 버렸지 뭐예요. 처음에는 대수롭지 않게 생각했어요. 전원 버튼을 몇 번 눌러보고, 보일러를 껐다가 다시 켜봐"
+  },
+  {
+    "slug": "2026-03-17-테스트해봅시다-번역되는지.en",
+    "section": "blog",
+    "title": "Let's test if it translates",
+    "date": "2026-03-17",
+    "description": "Let's test if it translates",
+    "tags": [],
+    "excerpt": "Let's test if it really translates"
+  },
+  {
+    "slug": "2026-03-17-테스트해봅시다-번역되는지",
+    "section": "blog",
+    "title": "테스트해봅시다 번역되는지",
+    "date": "2026-03-17",
+    "description": "테스트해봅시다 번역되는지",
+    "tags": [],
+    "excerpt": "테스트해봅시다 번역되는지 진짜로"
+  },
+  {
+    "slug": "2026-03-17-스토리-번역될까-2.en",
+    "section": "stories",
+    "title": "Will the story be translated?",
+    "date": "2026-03-17",
+    "description": "Will the story be translated?",
+    "tags": [],
+    "excerpt": "Will the story be translated?"
+  },
+  {
+    "slug": "2026-03-17-스토리-번역될까-2",
+    "section": "stories",
+    "title": "스토리 번역될까?",
+    "date": "2026-03-17",
+    "description": "스토리 번역될까?",
+    "tags": [],
+    "excerpt": "스토리 번역될까?"
+  },
+  {
+    "slug": "2026-03-17-스토리-번역될까.en",
+    "section": "stories",
+    "title": "Will the story be translated?",
+    "date": "2026-03-17",
+    "description": "Will the story be translated?",
+    "tags": [],
+    "excerpt": "Will the story be translated?"
+  },
+  {
+    "slug": "2026-03-17-스토리-번역될까",
+    "section": "stories",
+    "title": "스토리 번역될까?",
+    "date": "2026-03-17",
+    "description": "스토리 번역될까?",
+    "tags": [],
+    "excerpt": "스토리 번역될까?"
+  },
+  {
+    "slug": "2026-03-16-test-2",
+    "section": "blog",
+    "title": "test",
+    "date": "2026-03-16",
+    "description": "test",
+    "tags": [
+      "test"
+    ],
+    "excerpt": "test"
+  },
+  {
+    "slug": "2026-03-16-test",
+    "section": "blog",
+    "title": "test",
+    "date": "2026-03-16",
+    "description": "test",
+    "tags": [
+      "test"
+    ],
+    "excerpt": "test"
+  },
+  {
+    "slug": "2026-03-16-test-story",
+    "section": "stories",
+    "title": "test story",
+    "date": "2026-03-16",
+    "description": "test",
+    "tags": [
+      "testt"
+    ],
+    "excerpt": "testt\r sdfgsdfg"
+  },
+  {
     "slug": "2026-03-12-b06118dc",
     "section": "blog",
     "title": "내 차, 나의 작은 세상",
@@ -14,7 +259,7 @@
       "추억",
       "EmberShine"
     ],
-    "excerpt": "오늘은 텔레그램으로 '자동차'라는 메시지와 함께 사진 한 장을 받았어요. 문득 제 차에 대한 이런저런 생각들이 떠올랐습니다. 제게 자동차는 단순한 이동 수단을 넘어선 의미를 가집니다. 아침 출근길, 좋아하는 음악을 크게 틀어놓고 세상과 잠시 단절되는 그 순간은 저만의 소중한 시간이죠. 때로는 아무 생각 없이 훌쩍 떠나고 싶을 때, 시동을 걸고 목적지 없이 "
+    "excerpt": "아침 출근길, 좋아하는 음악을 크게 틀어놓고 세상과 잠시 단절되는 그 순간은 저만의 소중한 시간이죠. 때로는 아무 생각 없이 훌쩍 떠나고 싶을 때, 시동을 걸고 목적지 없이 달리는 것만으로도 위로를 얻곤 합니다.\r \r 운전석에 앉아 핸들을 잡으면, 그 공간은 오롯이 저만의 것이 됩니다. 누구의 시선도 신경 쓸 필요 없이, 제 마음 가는 대로 노래를 부르거나"
   },
   {
     "slug": "getting-started-with-nextjs",

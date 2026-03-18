@@ -1,12 +1,14 @@
 'use client'
 
-import { useLang } from '@/lib/i18n/context'
+import { useParams } from 'next/navigation'
 import { t } from '@/lib/i18n/strings'
 
 type Page = 'blog' | 'stories' | 'portfolio'
 
 export default function PageHeading({ page }: { page: Page }) {
-  const { lang } = useLang()
+  const params = useParams()
+  const lang = params.lang === 'en' ? 'en' : 'ko'
+
   const title = t[page].title[lang]
   const desc  = t[page].description[lang]
 

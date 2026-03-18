@@ -24,6 +24,12 @@ export const ko = {
     edit: '수정',
     noPost: '프로젝트가 없습니다.',
   },
+  home: {
+    subtitle: '기술 글쓰기, 여행 이야기, 그리고 작업물.',
+    blog: '기술 노트, 가이드, 그리고 실험들.',
+    stories: '여행, 일상, 길에서 찍은 사진들.',
+    portfolio: '만들고 출시한 프로젝트들.',
+  },
   common: {
     save: '저장',
     cancel: '취소',

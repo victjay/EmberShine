@@ -9,6 +9,35 @@ export default async function proxy(request: NextRequest) {
     return new NextResponse('Not available on preview deployments', { status: 403 })
   }
 
+  // ── Locale redirect ──────────────────────────────────────
+  // Pass through if already localized
+  const isLocalized =
+    pathname.startsWith('/ko/') || pathname.startsWith('/en/') ||
+    pathname === '/ko' || pathname === '/en'
+
+  // Pass through if static / special path
+  const isPassthrough =
+    pathname.startsWith('/private') ||
+    pathname.startsWith('/api') ||
+    pathname === '/login' ||
+    pathname.startsWith('/_next') ||
+    pathname === '/robots.txt' ||
+    pathname === '/sitemap.xml' ||
+    pathname === '/manifest.webmanifest' ||
+    /\.(ico|png|jpg|jpeg|svg|css|js|webp|gif|woff|woff2)$/i.test(pathname)
+
+  if (!isLocalized && !isPassthrough) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/ko${pathname === '/' ? '' : pathname}`
+    return NextResponse.redirect(url)
+  }
+  // ────────────────────────────────────────────────────────
+
+  // ── Supabase auth gate (only /private/*) ────────────────
+  if (!pathname.startsWith('/private')) {
+    return NextResponse.next()
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -48,5 +77,8 @@ export default async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/private/:path*'],
+  matcher: [
+    '/private/:path*',
+    '/((?!_next/static|_next/image|favicon\\.ico|robots\\.txt|sitemap\\.xml|manifest\\.webmanifest|api|private|login).*)',
+  ],
 }

@@ -26,6 +26,12 @@ export const en: Messages = {
     edit: 'Edit',
     noPost: 'No projects yet.',
   },
+  home: {
+    subtitle: 'A personal space for tech writing, travel stories, and work.',
+    blog: 'Tech notes, guides, and dev experiments.',
+    stories: 'Travel, daily life, photos from the road.',
+    portfolio: 'Projects built and shipped.',
+  },
   common: {
     save: 'Save',
     cancel: 'Cancel',

@@ -1,44 +1,69 @@
 import type { Metadata } from 'next'
-import { getPostBySlug, getPostSlugs } from '@/lib/content/markdown'
-import { MDXRemote } from 'next-mdx-remote/rsc'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { MDXRemote } from 'next-mdx-remote/rsc'
+import { isValidLocale } from '@/lib/i18n/locale'
+import { getDictionary } from '../../../../../messages'
+import { getPostBySlug, getAllPosts } from '@/lib/content'
+import { needsFallbackBadge } from '@/lib/i18n/fallback'
 import SectionControls from '@/components/SectionControls'
 
 interface Props {
-  params: Promise<{ slug: string }>
+  params: Promise<{ lang: string; slug: string }>
 }
 
 export async function generateStaticParams() {
-  return getPostSlugs('portfolio').map((slug) => ({ slug }))
+  const posts = await getAllPosts('portfolio')
+  return posts.map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
-  const post = await getPostBySlug('portfolio', slug)
+  const { lang, slug } = await params
+
+  if (!isValidLocale(lang)) return {}
+
+  const post = await getPostBySlug('portfolio', slug, lang)
   if (!post) return {}
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
+
   return {
     title: post.title,
-    description: post.description,
-    alternates: { canonical: `/portfolio/${slug}` },
+    description: post.description ?? '',
+    metadataBase: new URL(siteUrl),
+    alternates: {
+      canonical: `/${lang}/portfolio/${slug}`,
+      languages: {
+        ko: `/ko/portfolio/${slug}`,
+        en: `/en/portfolio/${slug}`,
+      },
+    },
     openGraph: {
       title: post.title,
-      description: post.description,
-      url: `/portfolio/${slug}`,
+      description: post.description ?? '',
+      locale: lang === 'ko' ? 'ko_KR' : 'en_US',
+      alternateLocale: lang === 'ko' ? ['en_US'] : ['ko_KR'],
+      url: `${siteUrl}/${lang}/portfolio/${slug}`,
       type: 'article',
     },
   }
 }
 
 export default async function PortfolioPostPage({ params }: Props) {
-  const { slug } = await params
-  const post = await getPostBySlug('portfolio', slug)
+  const { lang, slug } = await params
+
+  if (!isValidLocale(lang)) notFound()
+
+  const dict = await getDictionary(lang)
+  const post = await getPostBySlug('portfolio', slug, lang)
   if (!post) notFound()
+
+  const showFallback = needsFallbackBadge(post, lang)
 
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
       <Link
-        href="/portfolio"
+        href={`/${lang}/portfolio`}
         className="inline-flex items-center gap-1 text-sm text-slate-400 hover:text-blue-600 transition-colors font-mono mb-8"
       >
         ← Portfolio
@@ -47,8 +72,18 @@ export default async function PortfolioPostPage({ params }: Props) {
       <header className="mb-10">
         <div className="flex items-start justify-between gap-4 mb-3">
           <h1 className="text-3xl font-bold text-navy-900">{post.title}</h1>
-          <SectionControls newHref="/private/portfolio/new" editHref={`/private/portfolio/edit/${slug}`} />
+          <SectionControls
+            newHref="/private/portfolio/new"
+            editHref={`/private/portfolio/edit/${slug}`}
+          />
         </div>
+
+        {showFallback && (
+          <span className="text-xs text-slate-400 border border-slate-200 rounded px-2 py-0.5 mb-3 inline-block">
+            원문 (한국어)
+          </span>
+        )}
+
         <div className="flex flex-wrap items-center gap-3 mb-3">
           {post.status != null && (
             <span className={`text-xs font-mono px-2 py-1 rounded border ${

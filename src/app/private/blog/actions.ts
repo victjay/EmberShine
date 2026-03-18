@@ -1,6 +1,7 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 import { assertAdmin } from '@/lib/auth/admin'
 import { safeSlug, ensureUniquePostId } from '@/lib/content/slug-utils'
 import { buildMarkdown } from '@/lib/content/builder'
@@ -48,6 +49,9 @@ export async function createBlogPost(formData: FormData): Promise<{ error: strin
   } catch (e) {
     return { error: `GitHub push 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
   }
+
+  revalidatePath('/ko/blog')
+  revalidatePath('/en/blog')
 
   // ── 번역 (비차단) ───────────────────────────────────────
   // 이 블록 실패는 저장 실패가 아님. return { error } 절대 금지.
@@ -117,6 +121,9 @@ export async function updateBlogPost(formData: FormData): Promise<{ error: strin
   } catch (e) {
     return { error: `GitHub push 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
   }
+
+  revalidatePath('/ko/blog')
+  revalidatePath('/en/blog')
 
   // 기존 .en.md stale 처리: 삭제 후 재번역 시도
   try {

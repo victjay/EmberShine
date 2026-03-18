@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { useLang } from '@/lib/i18n/context'
 import { t } from '@/lib/i18n/strings'
 
 interface Post {
@@ -25,14 +25,15 @@ interface Props {
 export default function PostSearch({ posts, layout }: Props) {
   const [query, setQuery] = useState('')
   const [currentLayout, setCurrentLayout] = useState<'list' | 'grid'>(layout ?? 'list')
-  const { lang } = useLang()
+  const params = useParams()
+  const lang = params.lang === 'en' ? 'en' : 'ko'
 
   const q = query.trim().toLowerCase()
   const filtered = q
     ? posts.filter((p) =>
         p.title.toLowerCase().includes(q) ||
         (p.description ?? '').toLowerCase().includes(q) ||
-        (p.tags ?? []).some((t) => t.toLowerCase().includes(q)),
+        (p.tags ?? []).some((tag) => tag.toLowerCase().includes(q)),
       )
     : posts
 
@@ -89,20 +90,20 @@ export default function PostSearch({ posts, layout }: Props) {
       {filtered.length === 0 ? (
         <p className="text-slate-400 text-sm">{t.search.empty[lang]}</p>
       ) : currentLayout === 'list' ? (
-        <ListLayout posts={filtered} />
+        <ListLayout posts={filtered} lang={lang} />
       ) : (
-        <GridLayout posts={filtered} />
+        <GridLayout posts={filtered} lang={lang} />
       )}
     </>
   )
 }
 
-function ListLayout({ posts }: { posts: Post[] }) {
+function ListLayout({ posts, lang }: { posts: Post[]; lang: string }) {
   return (
     <ul className="flex flex-col gap-4">
       {posts.map((post) => (
         <li key={post.slug}>
-          <Link href={`/${post.section}/${post.slug}`} className="group block">
+          <Link href={`/${lang}/${post.section}/${post.slug}`} className="group block">
             <article className="border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-sm transition-all bg-white">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">
@@ -137,12 +138,12 @@ function ListLayout({ posts }: { posts: Post[] }) {
   )
 }
 
-function GridLayout({ posts }: { posts: Post[] }) {
+function GridLayout({ posts, lang }: { posts: Post[]; lang: string }) {
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       {posts.map((post) => (
         <li key={post.slug}>
-          <Link href={`/${post.section}/${post.slug}`} className="group block h-full">
+          <Link href={`/${lang}/${post.section}/${post.slug}`} className="group block h-full">
             <article className="h-full border border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-md transition-all bg-white flex flex-col">
               <div className="h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shrink-0">
                 <svg className="w-8 h-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
