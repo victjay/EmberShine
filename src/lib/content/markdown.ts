@@ -60,10 +60,23 @@ export async function getPostBySlug(
   }
 }
 
+function getPostDate(post: Post): number {
+  const dateStr =
+    post.date ??
+    (post.source_updated_at as string | undefined) ??
+    post.slug.match(/^\d{4}-\d{2}-\d{2}/)?.[0]
+
+  if (!dateStr) return 0
+
+  // UTC 고정 파싱 — 모든 환경에서 동일한 timestamp 보장
+  const t = new Date(dateStr + 'T00:00:00Z').getTime()
+  return isNaN(t) ? 0 : t
+}
+
 export async function getAllPosts(section: string, locale?: Locale): Promise<Post[]> {
   const slugs = getPostSlugs(section)
   const posts = await Promise.all(slugs.map((slug) => getPostBySlug(section, slug, locale)))
   return posts
     .filter((p): p is Post => p !== null)
-    .sort((a, b) => (a.date > b.date ? -1 : 1))
+    .sort((a, b) => getPostDate(b) - getPostDate(a))
 }
