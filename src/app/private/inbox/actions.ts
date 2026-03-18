@@ -74,6 +74,8 @@ export async function executeDeletePost(jobId: string) {
       .update({ status: 'done', executed_at: new Date().toISOString() })
       .eq('id', jobId)
 
+    revalidatePath('/private/inbox')
+
   } catch (e) {
     await adminSupabase
       .from('admin_jobs')

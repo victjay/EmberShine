@@ -75,9 +75,14 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
                 <li key={job.id} className="border border-red-200 rounded-lg p-4 text-sm bg-red-50 flex items-center justify-between gap-4">
                   <div>
                     <p className="font-mono text-xs text-gray-400 mb-1">{job.id.slice(0, 8)}…</p>
-                    <p className="text-gray-700 font-medium">
+                    <a
+                      href={`/ko/${job.target_section}/${job.target_slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 hover:underline font-medium"
+                    >
                       {job.target_section} / {job.target_slug}
-                    </p>
+                    </a>
                     {job.requested_by && (
                       <p className="text-xs text-gray-400 mt-1">요청: {job.requested_by}</p>
                     )}
