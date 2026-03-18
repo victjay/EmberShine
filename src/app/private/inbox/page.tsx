@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import DeleteButton from './DeleteButton'
 import SubmitButton from '@/components/SubmitButton'
-import { executeDeletePost } from './actions'
+import { executeDeletePost, cancelDeletePost } from './actions'
 
 export default async function InboxPage({ searchParams }: { searchParams: Promise<{ saved?: string; commit?: string }> }) {
   const { saved, commit: commitSha } = await searchParams
@@ -82,13 +82,22 @@ export default async function InboxPage({ searchParams }: { searchParams: Promis
                       <p className="text-xs text-gray-400 mt-1">요청: {job.requested_by}</p>
                     )}
                   </div>
-                  <form action={deleteAction}>
-                    <SubmitButton
-                      label="최종 삭제 확인"
-                      loadingLabel="삭제 중..."
-                      className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-                    />
-                  </form>
+                  <div className="flex gap-2">
+                    <form action={deleteAction}>
+                      <SubmitButton
+                        label="최종 삭제 확인"
+                        loadingLabel="삭제 중..."
+                        className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+                      />
+                    </form>
+                    <form action={cancelDeletePost.bind(null, job.id) as unknown as (formData: FormData) => Promise<void>}>
+                      <SubmitButton
+                        label="되살리기"
+                        loadingLabel="취소 중..."
+                        className="px-3 py-1.5 text-sm bg-slate-200 text-slate-700 rounded-lg hover:bg-slate-300 transition-colors disabled:opacity-50"
+                      />
+                    </form>
+                  </div>
                 </li>
               )
             })}

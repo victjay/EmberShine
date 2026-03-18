@@ -1,7 +1,8 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useActionState } from 'react'
 import SubmitButton from '@/components/SubmitButton'
+import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   postId: string
@@ -13,6 +14,17 @@ interface Props {
 }
 
 export default function DeleteButton({ postId, section, requestDeleteAction }: Props) {
+  const [isAdmin, setIsAdmin] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+        setIsAdmin(true)
+      }
+    })
+  }, [])
+
   const [state, formAction] = useActionState<
     { error?: string } | null,
     FormData
@@ -24,6 +36,8 @@ export default function DeleteButton({ postId, section, requestDeleteAction }: P
     null
   )
   const [confirmed, setConfirmed] = useState(false)
+
+  if (!isAdmin) return null
 
   return (
     <form action={formAction}>

@@ -85,3 +85,16 @@ export async function executeDeletePost(jobId: string) {
     return { error: '삭제 실패: ' + (e instanceof Error ? e.message : '알 수 없는 오류') }
   }
 }
+
+export async function cancelDeletePost(jobId: string) {
+  await assertAdmin()
+
+  const adminSupabase = createAdminClient()
+  await adminSupabase
+    .from('admin_jobs')
+    .update({ status: 'canceled' })
+    .eq('id', jobId)
+    .eq('status', 'pending')
+
+  revalidatePath('/private/inbox')
+}
