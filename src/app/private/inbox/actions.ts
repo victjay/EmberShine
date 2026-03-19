@@ -89,6 +89,34 @@ export async function executeDeletePost(jobId: string) {
   }
 }
 
+export async function createDraftPost(
+  section: 'blog' | 'stories' | 'portfolio'
+): Promise<{ id: string } | { error: string }> {
+  await assertAdmin()
+
+  const adminSupabase = createAdminClient()
+  const { data, error } = await adminSupabase
+    .from('draft_posts')
+    .insert({
+      section,
+      title: '제목 없음',
+      body_markdown: '',
+      status: 'draft',
+      draft_stage: 'writing',
+      inbox_id: null,
+      github_path: null,
+      frontmatter: null,
+    })
+    .select('id')
+    .single()
+
+  if (error || !data) {
+    return { error: 'draft 생성 실패: ' + (error?.message ?? '알 수 없는 오류') }
+  }
+
+  return { id: data.id }
+}
+
 export async function cancelDeletePost(jobId: string) {
   await assertAdmin()
 
