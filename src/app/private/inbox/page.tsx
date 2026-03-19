@@ -5,9 +5,10 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import WorkspaceNav, { WorkspaceTab, WorkspaceCounts } from './WorkspaceNav'
 import NewPostModal from './NewPostModal'
 import CategorizeCard from './CategorizeCard'
+import MessagesTab from './MessagesTab'
 import SubmitButton from '@/components/SubmitButton'
 import { executeDeletePost, cancelDeletePost } from './actions'
-import type { CategorizeOutput } from '@/types'
+import type { CategorizeOutput, SystemNotification } from '@/types'
 
 type SearchParams = Promise<{ tab?: string; saved?: string; commit?: string }>
 
@@ -108,12 +109,23 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
 
   const pendingMessages = (messages ?? []).filter((m) => m.status === 'pending')
 
+  // system_notifications
+  const { data: notifications } = await adminSupabase
+    .from('system_notifications')
+    .select('id, type, source, message, action_required, read_at, created_at')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  const unreadActionRequired = (notifications ?? []).filter(
+    (n) => n.action_required && !n.read_at,
+  )
+
   const counts: WorkspaceCounts = {
     writing:      writing.length,
     categorizing: categorizing.length,
     ready:        ready.length,
     deleteQueue:  (deleteJobs ?? []).length,
-    messages:     pendingMessages.length,
+    messages:     pendingMessages.length + unreadActionRequired.length,
   }
 
   return (
@@ -158,7 +170,8 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
           ready={ready}
           writing={writing}
           deleteJobs={deleteJobs ?? []}
-          messages={pendingMessages}
+          pendingMessages={pendingMessages}
+          unreadActionRequired={unreadActionRequired.length}
         />
       )}
       {activeTab === 'writing' && (
@@ -185,7 +198,10 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
         <DeleteQueueTab deleteJobs={deleteJobs ?? []} />
       )}
       {activeTab === 'messages' && (
-        <MessagesTab messages={messages ?? []} />
+        <MessagesTab
+          telegramMessages={messages ?? []}
+          notifications={(notifications ?? []) as SystemNotification[]}
+        />
       )}
     </main>
   )
@@ -227,16 +243,18 @@ interface MessageRow {
 // ────────────────────────────────────────────────────────────────
 
 function AllTab({
-  categorizing, ready, writing, deleteJobs, messages,
+  categorizing, ready, writing, deleteJobs, pendingMessages, unreadActionRequired,
 }: {
   categorizing: DraftRow[]
   ready: DraftRow[]
   writing: DraftRow[]
   deleteJobs: DeleteJobRow[]
-  messages: MessageRow[]
+  pendingMessages: MessageRow[]
+  unreadActionRequired: number
 }) {
-  const totalDrafts = categorizing.length + ready.length + writing.length
-  const totalItems  = totalDrafts + deleteJobs.length + messages.length
+  const totalDrafts  = categorizing.length + ready.length + writing.length
+  const messagesTotal = pendingMessages.length + unreadActionRequired
+  const totalItems   = totalDrafts + deleteJobs.length + messagesTotal
 
   if (totalItems === 0) {
     return <p className="text-gray-400 text-sm">항목이 없습니다.</p>
@@ -266,9 +284,9 @@ function AllTab({
           </p>
         </section>
       )}
-      {messages.length > 0 && (
+      {messagesTotal > 0 && (
         <section>
-          <SectionHeader title="조치 필요 메시지" count={messages.length} href="?tab=messages" dotColor="bg-red-400" />
+          <SectionHeader title="메시지" count={messagesTotal} href="?tab=messages" dotColor="bg-red-400" />
           <p className="text-sm text-slate-500">
             <Link href="?tab=messages" className="underline underline-offset-2">메시지 탭</Link>에서 확인하세요.
           </p>
@@ -397,65 +415,3 @@ function DeleteQueueTab({ deleteJobs }: { deleteJobs: DeleteJobRow[] }) {
   )
 }
 
-// ────────────────────────────────────────────────────────────────
-// MessagesTab
-// ────────────────────────────────────────────────────────────────
-
-function MessagesTab({ messages }: { messages: MessageRow[] }) {
-  if (messages.length === 0) {
-    return <p className="text-sm text-slate-400">수신된 메시지가 없습니다.</p>
-  }
-
-  const pending  = messages.filter((m) => m.status === 'pending')
-  const approved = messages.filter((m) => m.status === 'approved')
-  const rejected = messages.filter((m) => m.status === 'rejected')
-  const private_ = messages.filter((m) => m.status === 'private')
-
-  return (
-    <div className="space-y-8">
-      {pending.length > 0  && <MessageSection title="대기 중"  items={pending}  dotColor="bg-yellow-400" />}
-      {approved.length > 0 && <MessageSection title="승인됨"  items={approved} dotColor="bg-green-500" />}
-      {rejected.length > 0 && <MessageSection title="거절됨"  items={rejected} dotColor="bg-red-400" />}
-      {private_.length > 0 && <MessageSection title="비공개"  items={private_} dotColor="bg-blue-400" />}
-    </div>
-  )
-}
-
-function MessageSection({ title, items, dotColor }: { title: string; items: MessageRow[]; dotColor: string }) {
-  return (
-    <section>
-      <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-        <span className={`inline-block w-2 h-2 rounded-full ${dotColor}`} />
-        {title} ({items.length})
-      </h2>
-      <ul className="space-y-3">
-        {items.map((m) => (
-          <li key={m.id} className="border border-gray-200 rounded-lg p-4 text-sm hover:border-blue-400 hover:shadow-sm transition-all flex items-start gap-3">
-            <Link href={`/private/inbox/${m.id}`} className="flex-1 min-w-0 cursor-pointer">
-              <span className="font-mono text-xs text-gray-400 block mb-1">{m.id.slice(0, 8)}…</span>
-              <p className="text-gray-700 line-clamp-2">
-                {m.text_content ?? `(${m.message_type})`}
-              </p>
-              <div className="flex flex-wrap gap-1 mt-2">
-                {m.target_section && <Tag label={m.target_section} />}
-                {m.parsed_tags?.map((t) => <Tag key={t} label={t} />)}
-                {m.draft_generated_at && <Tag label="AI 초안 있음" className="bg-purple-100 text-purple-700" />}
-              </div>
-            </Link>
-            <time className="font-mono text-xs text-gray-400 shrink-0">
-              {m.telegram_date ? m.telegram_date.slice(0, 16).replace('T', ' ') : ''}
-            </time>
-          </li>
-        ))}
-      </ul>
-    </section>
-  )
-}
-
-function Tag({ label, className = 'bg-gray-100 text-gray-600' }: { label: string; className?: string }) {
-  return (
-    <span className={`px-2 py-0.5 rounded text-xs font-medium ${className}`}>
-      {label}
-    </span>
-  )
-}

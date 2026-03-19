@@ -76,6 +76,17 @@ export interface CategorizeOutput {
   suggested_top3: AICategoryRecommendationItem[]
 }
 
+// Phase 21 Step 7: 시스템 알림
+export interface SystemNotification {
+  id: string
+  type: 'info' | 'warning' | 'error'
+  source: 'deploy' | 'thumbnail' | 'category' | 'github'
+  message: string
+  action_required: boolean
+  read_at: string | null
+  created_at: string
+}
+
 export interface AICategoryRecommendation {
   id: string
   post_id: string

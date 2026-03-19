@@ -155,6 +155,14 @@ export async function deleteCategory(
     }
     revalidatePath(`/ko/${section}`)
     revalidatePath(`/en/${section}`)
+
+    // 시스템 알림: 카테고리 삭제로 비공개 처리된 포스트 안내
+    await adminSupabase.from('system_notifications').insert({
+      type: 'warning',
+      source: 'category',
+      message: `카테고리 '${name}' 삭제로 포스트 ${restorations.length}개가 비공개 처리됐습니다. Workspace에서 카테고리를 재지정해주세요.`,
+      action_required: true,
+    })
   }
 
   // 5. 카테고리 soft-delete tombstone (AI excluded_version 자동 갱신)

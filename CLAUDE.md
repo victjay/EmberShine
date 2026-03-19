@@ -92,10 +92,13 @@ Never push if:
 ### Phase 21 — 콘텐츠 상태 모델 + Workspace + AI 카테고리 추천
 - 상태 모델: `status = draft | published`, `draft_stage = writing | categorizing | ready`
 - `unassigned` 별도 상태 제거 → `draft_stage`로 흡수
-- Inbox → Workspace로 재정의
-- AI 카테고리 이중 추천 (기존 top3 + 신규 top3)
-- content_hash 기반 AI 추천 캐시 무효화
-- 카테고리 soft-delete tombstone + excluded_categories
+- Inbox → Workspace로 재정의 (탭: 전체/작성중/카테고리지정필요/발행준비완료/삭제대기/메시지)
+- AI 카테고리 이중 추천 (기존 top3 + 신규 top3), content_hash 기반 캐시 무효화
+- 카테고리 관리 UI (`/private/categories`): 추가/삭제, soft-delete tombstone
+- 카테고리 삭제 트랜잭션: GitHub 삭제 → Supabase draft 복원 (순서 엄수)
+- 메시지 탭: Telegram + 시스템 알림 통합, 서브필터 (전체/Telegram/시스템 알림/조치 필요)
+- `system_notifications` 테이블: type/source/action_required/read_at
+- Supabase migrations: `004_phase21_schema.sql`, `005_phase21_notifications.sql`
 
 ### Phase 22 — 썸네일 자동화 1차
 - GitHub Actions 기반 자동 썸네일 지정
@@ -317,6 +320,17 @@ Type values: `delete_post | retranslate_post | regenerate_thumbnail`
 -- commit_sha is the primary matching key
 ```
 Status values: `building | ready | error | canceled`
+
+### system_notifications
+```sql
+-- Phase 21 Step 7: Telegram + 시스템 알림 통합
+-- type: 'info' | 'warning' | 'error'
+-- source: 'deploy' | 'thumbnail' | 'category' | 'github'
+-- RLS enabled, NO policies → service role only via createAdminClient()
+```
+- `action_required=true` → 메시지 탭 배지 카운트에 포함 (미읽음 기준)
+- `read_at IS NOT NULL` → 읽음 처리됨 (opacity-60, 조치 필요 서브필터에서 제외)
+- 카테고리 삭제 시 영향받는 포스트 있으면 자동 삽입 (source='category', type='warning')
 
 ### createAdminClient()
 ```ts

@@ -16,6 +16,16 @@ import type { CategorizeOutput } from '@/types'
 import matter from 'gray-matter'
 import crypto from 'crypto'
 
+export async function markNotificationRead(id: string): Promise<void> {
+  await assertAdmin()
+  const adminSupabase = createAdminClient()
+  await adminSupabase
+    .from('system_notifications')
+    .update({ read_at: new Date().toISOString() })
+    .eq('id', id)
+  revalidatePath('/private/inbox')
+}
+
 export async function deleteInboxMessage(formData: FormData): Promise<void> {
   await assertAdmin()
 
