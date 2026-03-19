@@ -54,3 +54,29 @@ export interface Profile {
   role: 'owner'
   created_at: string
 }
+
+// Phase 21: 카테고리 (섹션별 독립 관리, soft-delete tombstone)
+export interface Category {
+  id: string
+  name: string
+  section: 'blog' | 'stories' | 'portfolio'
+  deleted_at: string | null  // null = 활성, 값 있음 = soft-deleted
+  created_at: string
+}
+
+// Phase 21: AI 카테고리 추천 캐시
+export interface AICategoryRecommendationItem {
+  name: string
+  reason: string
+}
+
+export interface AICategoryRecommendation {
+  id: string
+  post_id: string
+  content_hash: string
+  categories_version: string   // 카테고리 목록 hash
+  excluded_version: string     // excluded_categories hash
+  existing_top3: AICategoryRecommendationItem[]
+  suggested_top3: AICategoryRecommendationItem[]
+  created_at: string
+}
