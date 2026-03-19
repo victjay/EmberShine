@@ -1,10 +1,13 @@
 import Link from 'next/link'
+import { createHash } from 'crypto'
 import { createServiceClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import WorkspaceNav, { WorkspaceTab, WorkspaceCounts } from './WorkspaceNav'
 import NewPostModal from './NewPostModal'
+import CategorizeCard from './CategorizeCard'
 import SubmitButton from '@/components/SubmitButton'
 import { executeDeletePost, cancelDeletePost } from './actions'
+import type { CategorizeOutput } from '@/types'
 
 type SearchParams = Promise<{ tab?: string; saved?: string; commit?: string }>
 
@@ -31,16 +34,62 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
     deployment = data
   }
 
-  // draft_posts (status=draft)
+  // draft_posts (status=draft) — body_markdown + frontmatter included for categorize hash
   const { data: drafts } = await supabase
     .from('draft_posts')
-    .select('id, section, title, draft_stage, created_at')
+    .select('id, section, title, body_markdown, frontmatter, draft_stage, created_at')
     .eq('status', 'draft')
     .order('created_at', { ascending: false })
 
   const writing      = (drafts ?? []).filter((d) => d.draft_stage === 'writing')
   const categorizing = (drafts ?? []).filter((d) => d.draft_stage === 'categorizing')
   const ready        = (drafts ?? []).filter((d) => d.draft_stage === 'ready')
+
+  // Categories (for CategorizeCard + hash computation)
+  const { data: allCategories } = await supabase
+    .from('categories')
+    .select('name, section, deleted_at')
+
+  const categoriesMap: Record<string, string[]> = {}
+  const excludedMap:   Record<string, string[]> = {}
+  for (const cat of allCategories ?? []) {
+    categoriesMap[cat.section] ??= []
+    excludedMap[cat.section]   ??= []
+    if (cat.deleted_at === null) categoriesMap[cat.section].push(cat.name)
+    else                         excludedMap[cat.section].push(cat.name)
+  }
+
+  // Cache check for categorizing drafts
+  function sha(s: string) {
+    return createHash('sha256').update(s).digest('hex').slice(0, 16)
+  }
+  const cachedRecsMap: Record<string, CategorizeOutput> = {}
+  for (const d of categorizing) {
+    const existing = categoriesMap[d.section] ?? []
+    const excluded = excludedMap[d.section]   ?? []
+    const desc     = ((d.frontmatter as Record<string, unknown>)?.description as string) ?? ''
+    const cHash = sha(d.title + (d.body_markdown ?? '').slice(0, 500) + desc)
+    const vHash = sha([...existing].sort().join(','))
+    const eHash = sha([...excluded].sort().join(','))
+
+    const { data: cached } = await adminSupabase
+      .from('ai_category_recommendations')
+      .select('existing_top3, suggested_top3')
+      .eq('post_id', d.id)
+      .eq('content_hash', cHash)
+      .eq('categories_version', vHash)
+      .eq('excluded_version', eHash)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
+    if (cached) {
+      cachedRecsMap[d.id] = {
+        existing_top3:  cached.existing_top3  as CategorizeOutput['existing_top3'],
+        suggested_top3: cached.suggested_top3 as CategorizeOutput['suggested_top3'],
+      }
+    }
+  }
 
   // admin_jobs delete queue
   const { data: deleteJobs } = await adminSupabase
@@ -108,7 +157,18 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
         <DraftList items={writing} emptyText="작성 중인 글이 없습니다." />
       )}
       {activeTab === 'categorizing' && (
-        <DraftList items={categorizing} emptyText="카테고리 지정이 필요한 글이 없습니다." />
+        categorizing.length === 0
+          ? <p className="text-sm text-slate-400">카테고리 지정이 필요한 글이 없습니다.</p>
+          : <div className="space-y-4">
+              {categorizing.map((d) => (
+                <CategorizeCard
+                  key={d.id}
+                  post={{ id: d.id, section: d.section, title: d.title, created_at: d.created_at }}
+                  existingCategories={categoriesMap[d.section] ?? []}
+                  initialRecommendation={cachedRecsMap[d.id] ?? null}
+                />
+              ))}
+            </div>
       )}
       {activeTab === 'ready' && (
         <DraftList items={ready} emptyText="발행 준비된 글이 없습니다." />

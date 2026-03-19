@@ -70,6 +70,12 @@ export interface AICategoryRecommendationItem {
   reason: string
 }
 
+// Phase 21: CategorizeCard / server action 공유 타입
+export interface CategorizeOutput {
+  existing_top3: AICategoryRecommendationItem[]
+  suggested_top3: AICategoryRecommendationItem[]
+}
+
 export interface AICategoryRecommendation {
   id: string
   post_id: string
