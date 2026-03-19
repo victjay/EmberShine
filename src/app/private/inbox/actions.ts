@@ -89,6 +89,26 @@ export async function executeDeletePost(jobId: string) {
   }
 }
 
+export async function saveDraft(formData: FormData): Promise<{ error: string } | undefined> {
+  await assertAdmin()
+
+  const id    = formData.get('id') as string
+  const title = (formData.get('title') as string)?.trim() || '제목 없음'
+  const body  = (formData.get('body') as string) ?? ''
+
+  if (!id) return { error: '잘못된 요청입니다.' }
+
+  const supabase = createServiceClient()
+  const { error } = await supabase
+    .from('draft_posts')
+    .update({ title, body_markdown: body })
+    .eq('id', id)
+
+  if (error) return { error: '저장 실패: ' + error.message }
+
+  revalidatePath(`/private/inbox/draft/${id}`)
+}
+
 export async function createDraftPost(
   section: 'blog' | 'stories' | 'portfolio'
 ): Promise<{ id: string } | { error: string }> {
