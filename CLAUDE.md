@@ -87,6 +87,22 @@ Never push if:
 - .env.local or secret files are staged
 - Phase completion criteria are not fully met
 
+## Phase History
+
+### Phase 21 — 콘텐츠 상태 모델 + Workspace + AI 카테고리 추천
+- 상태 모델: `status = draft | published`, `draft_stage = writing | categorizing | ready`
+- `unassigned` 별도 상태 제거 → `draft_stage`로 흡수
+- Inbox → Workspace로 재정의
+- AI 카테고리 이중 추천 (기존 top3 + 신규 top3)
+- content_hash 기반 AI 추천 캐시 무효화
+- 카테고리 soft-delete tombstone + excluded_categories
+
+### Phase 22 — 썸네일 자동화 1차
+- GitHub Actions 기반 자동 썸네일 지정
+- 3단계 롤아웃 중 1차 구현 (첫 번째 유효 이미지 / 섹션별 기본 썸네일)
+- 루프 방지 4중 방어
+- thumbnail_locked / thumbnail_source 메타데이터
+
 ## Hard Rules
 - NEVER commit `.env.local` or any file containing secrets
 - NEVER expose R2 credentials to client
@@ -136,7 +152,75 @@ Never push if:
 - `buildEnMarkdown`은 외부에서 주입된 `translated_from_updated_at`을 우선 사용 (내부 자동 생성 금지)
 - KO의 `source_updated_at`과 EN의 `translated_from_updated_at`은 반드시 동일한 today 기준값 사용
 
-### Private content (diary, inbox): Supabase only — zero Git involvement
+### Private content (diary, Workspace): Supabase only — zero Git involvement
+※ inbox는 Phase 21부터 Workspace로 통합됨
+
+### Content State Model (Phase 21~)
+
+#### 최상위 상태
+- `draft`     → Supabase only, 비공개
+- `published` → GitHub markdown 단일 소스, 공개
+
+#### draft_stage (draft 하위 단계)
+- `writing`      → 본문 작성 중 (회색 배지)
+- `categorizing` → 카테고리 미지정 (노란 배지)
+- `ready`        → 발행 validation 전체 통과 (초록 배지)
+
+#### 단일 소스 원칙
+- draft     → Supabase 단일 소스 (GitHub push 절대 없음)
+- published → GitHub markdown frontmatter 단일 소스
+- Supabase  → published 캐시/관리 보조용으로만 활용
+
+#### draft_stage 자동 전환 조건
+- 새 글 생성                 → `writing`
+- 발행 시도 + category 없음  → `categorizing`
+- 발행 validation 전체 통과  → `ready`
+  (발행 버튼 활성화 조건과 100% 동일. 별도 기준 만들지 말 것)
+
+#### 발행 흐름
+```
+카테고리 있을 때:
+  draft → 발행 클릭 → category 있음 → GitHub push → published
+
+카테고리 없을 때:
+  draft → 발행 클릭 → category 없음 → AI 추천 실행
+        → 선택하면 published
+        → 선택 안 하면 draft 유지 (draft_stage=categorizing)
+```
+
+## Workspace (Phase 21~)
+
+### 탭 구조
+```
+Workspace                                    [새 글 작성]
+├─ 전체           (섹션형 목록, 우선순위 정렬)
+├─ 작성 중        (draft_stage=writing)
+├─ 카테고리 지정 필요 (draft_stage=categorizing)
+├─ 발행 준비 완료 (draft_stage=ready)
+├─ 삭제 대기      (Delete Queue)
+└─ 메시지         (Telegram + 시스템 알림 통합)
+```
+
+### 전체 탭 정렬
+그룹 헤더가 있는 섹션형 목록 (우선순위 순):
+1. 카테고리 지정 필요 (가장 긴급)
+2. 발행 준비 완료
+3. 작성 중
+4. 삭제 대기
+5. 메시지
+각 그룹 내부: 최신 수정순
+
+### 새 글 작성 흐름
+`[새 글 작성]` 클릭 → 섹션 선택 (Blog / Stories / Portfolio)
+→ `status=draft`, `draft_stage=writing` → 편집 화면으로 이동
+
+### 메시지 탭
+서브필터: 전체 / Telegram / 시스템 알림 / 조치 필요
+시스템 알림 타입:
+- `info`    → 배포 완료 (파란색)
+- `warning` → 카테고리 삭제 영향 (노란색)
+- `error`   → R2 실패, push 실패 (빨간색)
+- `action_required: true/false` — 조치 필요 핀 구분
 
 ## GitHub Push Architecture
 
@@ -310,6 +394,16 @@ export async function myAction(formData: FormData) {
 // redirect() is ALWAYS outside try/catch
 ```
 
+## Button State Management (Phase 21~)
+
+모든 비동기 액션 버튼 공통 적용:
+- 클릭 전: 활성
+- 클릭 후: 비활성 + 스피너 (중복 클릭 방지)
+- 성공:    비활성 + 체크 아이콘
+- 실패:    활성 복귀 + 에러 토스트
+
+적용 대상: 발행하기 / 임시저장 / 삭제 / 카테고리 수정
+
 ## Slug & PostId Rules
 - `safeSlug(title)`: lowercase, `.` → remove, keep 가-힣/a-z/0-9, replace others with `-`
   e.g. `'Next.js 배포 가이드'` → `'nextjs-배포-가이드'`
@@ -322,6 +416,50 @@ export async function myAction(formData: FormData) {
   Schema types: `'object'`, `'string'` string literals (NOT `Type.OBJECT`)
 - `translate.ts`: MUST have `import 'server-only'` at top
 - Translation NEVER throws — always returns `{ success, data/error }`
+
+## AI Category Recommendation (Phase 21~)
+
+### 트리거
+- `draft_stage=categorizing` 탭 진입 시 백그라운드 자동 분석
+- 캐시 결과 있으면 재사용 (`content_hash` 기반)
+
+### 입력값
+- 제목, 본문 첫 500자, description
+- 섹션, 기존 카테고리 목록, `excluded_categories`
+
+### 출력값
+- 기존 유지: 기존 카테고리 top3 + 추천 근거 한 줄
+- 새로운 흐름: AI 신규 제안 top3 + 추천 근거 한 줄
+- 직접 입력 옵션
+
+### 캐시 무효화
+- `content_hash` 대상: 제목 + 본문 첫 500자 + description
+- 별도 캐시 키: section 변경 / 카테고리 목록 변경 / `excluded_categories` 변경
+- 수동 재분석: `[AI 재분석]` 버튼 제공
+
+### 신규 카테고리 생성 모달
+- 선택 항목이 신규 제안일 때 확인 모달 표시
+- 기존 카테고리와 유사도 높으면 경고 메시지 포함
+
+## Category Management (Phase 21~)
+
+### 범위
+- blog / stories / portfolio 섹션별 독립 관리
+- 섹션 간 공유 없음
+
+### 삭제 처리
+카테고리 삭제 시:
+1. 확인 모달: "포스트 N개가 비공개 처리됩니다"
+2. 영향받는 published 포스트:
+   - GitHub 원본 삭제 → Vercel 재배포 → 공개 URL 제거
+   - Supabase에 draft 복원 (데이터 원천: 삭제 직전 GitHub markdown 파싱)
+   - `status=draft`, `draft_stage=categorizing`
+3. AI 재추천 자동 시작
+4. soft-delete tombstone 보관
+
+### soft-delete tombstone
+- 삭제된 카테고리명 → `excluded_categories` 파라미터로 AI 재제안 차단
+- 관리자 명시 허용 시에만 같은 이름 재생성 가능
 
 ## GitHub Actions
 
@@ -336,6 +474,53 @@ export async function myAction(formData: FormData) {
 ### cleanup-deployments.yml
 - Trigger: `schedule: cron '*/15 * * * *'`
 - Marks `building` older than 15 minutes as `error`
+
+### thumbnail-automation.yml (Phase 22)
+- Trigger: `on: push, branches: [main], paths: ['content/**/*.md']`
+- `if: github.actor != 'github-actions[bot]'`
+- `concurrency: cancel-in-progress: true`
+- thumbnail frontmatter 없는 포스트만 처리 / `thumbnail_locked: true` → early exit
+
+#### 처리 흐름
+```
+본문 이미지 URL 추출
+→ 유효 이미지 필터 적용
+→ 유효 이미지 있음: 첫 번째 유효 이미지 사용
+→ 유효 이미지 없음: 섹션별 기본 썸네일
+→ 외부 URL: 다운로드 후 R2 업로드 / R2 URL: 그대로 사용
+→ frontmatter 업데이트 → GitHub push [skip ci]
+```
+
+#### 유효 이미지 필터
+제외 대상: svg/gif, avatar/logo/icon URL, timeout(10s), 10MB 초과,
+세로 비율 3:1 초과, 가로 비율 4:1 초과 (배너형)
+
+#### R2 경로
+- 썸네일: `thumbnails/{section}/{slug}.jpg?v={YYYYMMDDTHHmmss}`
+- 기본값: `thumbnails/defaults/default_blog.jpg` / `default_stories.jpg` / `default_portfolio.jpg`
+
+#### frontmatter 메타데이터
+```yaml
+thumbnail: thumbnails/{section}/{slug}.jpg?v={YYYYMMDDTHHmmss}
+thumbnail_source: first_image | default | ai_selected | ai_generated
+thumbnail_locked: false
+thumbnail_generated_at: {ISO timestamp}
+```
+
+#### 루프 방지 (4중)
+1. `github.actor != 'github-actions[bot]'`
+2. `concurrency: cancel-in-progress: true`
+3. 커밋 메시지에 `[skip ci]` 포함
+4. thumbnail 이미 존재 / `thumbnail_locked: true` → early exit
+
+#### R2 실패 정책
+실패 → `thumbnail_source=default` + `thumbnail_generated_at` 기록 → workflow 성공 처리
+→ Telegram error 알림 (같은 slug 1시간 내 중복 suppress)
+
+#### 롤아웃 계획
+- 1차 (현재): 첫 번째 유효 이미지 / 기본 썸네일
+- 2차 (추후): Gemini Vision으로 최적 이미지 선택
+- 3차 (추후): Imagen API로 썸네일 생성
 
 ## maxDuration Settings
 - Private Server Actions: `maxDuration: 30` in `vercel.json`
