@@ -97,24 +97,34 @@ export async function executeDeletePost(jobId: string) {
   }
 }
 
-export async function saveDraft(formData: FormData): Promise<{ error: string } | undefined> {
+export async function saveDraft(
+  formData: FormData,
+): Promise<{ error: string } | { newStage: string }> {
   await assertAdmin()
 
-  const id    = formData.get('id') as string
-  const title = (formData.get('title') as string)?.trim() || '제목 없음'
-  const body  = (formData.get('body') as string) ?? ''
+  const id       = formData.get('id') as string
+  const rawTitle = (formData.get('title') as string)?.trim() ?? ''
+  const body     = (formData.get('body') as string) ?? ''
+  const title    = rawTitle || '제목 없음'
 
   if (!id) return { error: '잘못된 요청입니다.' }
+
+  // 발행 버튼 활성화 조건과 동일한 validation → draft_stage 자동 전환
+  const isReady  = rawTitle.length > 0 && body.trim().length > 0
+  const newStage = isReady ? 'ready' : 'writing'
 
   const supabase = createServiceClient()
   const { error } = await supabase
     .from('draft_posts')
-    .update({ title, body_markdown: body })
+    .update({ title, body_markdown: body, draft_stage: newStage })
     .eq('id', id)
 
   if (error) return { error: '저장 실패: ' + error.message }
 
   revalidatePath(`/private/inbox/draft/${id}`)
+  revalidatePath('/private/inbox')
+
+  return { newStage }
 }
 
 export async function createDraftPost(
@@ -411,4 +421,84 @@ export async function deleteDraft(draftId: string): Promise<{ error: string } | 
   if (error) return { error: '삭제 실패: ' + error.message }
 
   revalidatePath('/private/inbox')
+}
+
+// ────────────────────────────────────────────────────────────────
+// 편집 화면 발행 버튼 → categorizing 전환 (Step 5)
+// ────────────────────────────────────────────────────────────────
+
+export async function publishDraft(draftId: string): Promise<{ error: string } | undefined> {
+  await assertAdmin()
+
+  const supabase = createServiceClient()
+
+  const { data: draft } = await supabase
+    .from('draft_posts')
+    .select('id, title, body_markdown')
+    .eq('id', draftId)
+    .eq('status', 'draft')
+    .single()
+
+  if (!draft) return { error: 'Draft not found' }
+
+  // 발행 validation (= 발행 버튼 활성화 조건과 동일)
+  if (!draft.title.trim() || !draft.body_markdown?.trim()) {
+    return { error: '제목과 본문을 입력해주세요.' }
+  }
+
+  // category 없음 → categorizing 전환 후 redirect
+  await supabase
+    .from('draft_posts')
+    .update({ draft_stage: 'categorizing' })
+    .eq('id', draftId)
+
+  revalidatePath('/private/inbox')
+  redirect('/private/inbox?tab=categorizing')
+}
+
+// ────────────────────────────────────────────────────────────────
+// 발행된 포스트 카테고리 수정 (GitHub frontmatter re-push)
+// ────────────────────────────────────────────────────────────────
+
+export async function updatePublishedCategory(
+  section: 'blog' | 'stories' | 'portfolio',
+  slug: string,
+  newCategory: string,
+): Promise<{ error: string } | undefined> {
+  await assertAdmin()
+
+  const koPath = `content/${section}/${slug}.md`
+  const enPath = `content/${section}/${slug}.en.md`
+
+  const koRaw = await getFileContent(koPath)
+  if (!koRaw) return { error: '파일을 찾을 수 없습니다.' }
+
+  const { data: koData, content: koBody } = matter(koRaw)
+  koData.category = newCategory
+
+  const files: FileEntry[] = [
+    { path: koPath, content: matter.stringify(koBody, koData) },
+  ]
+
+  try {
+    const enRaw = await getFileContent(enPath)
+    if (enRaw) {
+      const { data: enData, content: enBody } = matter(enRaw)
+      enData.category = newCategory
+      files.push({ path: enPath, content: matter.stringify(enBody, enData) })
+    }
+  } catch {
+    // EN 처리 실패 시 KO만 진행
+  }
+
+  try {
+    await pushMultipleToGitHub({ files, message: `Update category: ${slug} → ${newCategory}` })
+  } catch (e) {
+    return { error: `GitHub push 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
+  }
+
+  revalidatePath(`/ko/${section}/${slug}`)
+  revalidatePath(`/en/${section}/${slug}`)
+  revalidatePath(`/ko/${section}`)
+  revalidatePath(`/en/${section}`)
 }
