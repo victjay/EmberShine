@@ -139,7 +139,15 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
 
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold">Workspace</h1>
-        <NewPostModal />
+        <div className="flex items-center gap-3">
+          <Link
+            href="/private/categories"
+            className="px-3 py-1.5 text-sm text-slate-500 border border-slate-200 rounded-lg hover:border-slate-400 hover:text-slate-700 transition-colors"
+          >
+            카테고리 관리
+          </Link>
+          <NewPostModal />
+        </div>
       </div>
 
       <WorkspaceNav activeTab={activeTab} counts={counts} />

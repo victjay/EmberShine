@@ -34,6 +34,21 @@ export async function getFileContent(path: string): Promise<string | null> {
   return Buffer.from(data.content.replace(/\n/g, ''), 'base64').toString('utf8')
 }
 
+// GitHub 디렉토리 내 .md 파일 slug 목록 반환 (EN 제외, GitHub 현재 상태 기준)
+export async function listGitHubDirectory(dir: string): Promise<string[]> {
+  const { token, repo } = getGitHubConfig()
+  const res = await fetch(
+    `https://api.github.com/repos/${repo}/contents/${dir}`,
+    { headers: { Authorization: `token ${token}` } }
+  )
+  if (res.status === 404) return []
+  if (!res.ok) throw new Error(`GitHub 디렉토리 조회 실패: ${res.status}`)
+  const items = await res.json() as Array<{ name: string; type: string }>
+  return items
+    .filter((item) => item.type === 'file' && item.name.endsWith('.md') && !item.name.endsWith('.en.md'))
+    .map((item) => item.name.replace(/\.md$/, ''))
+}
+
 export async function checkFileExists(path: string): Promise<boolean> {
   const { token, repo } = getGitHubConfig()
   const res = await fetch(
