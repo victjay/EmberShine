@@ -1,7 +1,10 @@
 export type MessageStatus = 'pending' | 'approved' | 'rejected' | 'private'
 export type MessageType = 'text' | 'photo' | 'video' | 'document' | 'unknown'
 export type TargetSection = 'blog' | 'stories' | 'portfolio' | 'diary'
-export type DraftStatus = 'draft' | 'approved' | 'published'
+// Phase 21: 'approved' 제거 — draft_posts에서 실제 미사용 확인됨
+export type DraftStatus = 'draft' | 'published'
+// Phase 21: draft 하위 단계
+export type DraftStage = 'writing' | 'categorizing' | 'ready'
 
 export interface InboxMessage {
   id: string
@@ -41,6 +44,7 @@ export interface DraftPost {
   frontmatter: Record<string, unknown> | null
   github_path: string | null
   status: DraftStatus
+  draft_stage?: DraftStage  // status='draft'일 때만 유효
   created_at: string
 }
 
