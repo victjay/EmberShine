@@ -101,10 +101,15 @@ Never push if:
 - Supabase migrations: `004_phase21_schema.sql`, `005_phase21_notifications.sql`
 
 ### Phase 22 — 썸네일 자동화 1차
-- GitHub Actions 기반 자동 썸네일 지정
+- GitHub Actions 기반 자동 썸네일 지정 (`auto-thumbnail.yml`)
 - 3단계 롤아웃 중 1차 구현 (첫 번째 유효 이미지 / 섹션별 기본 썸네일)
-- 루프 방지 4중 방어
+- 루프 방지 4중 방어 (bot actor 제외 / concurrency cancel / [skip ci] / thumbnail 존재 체크)
 - thumbnail_locked / thumbnail_source 메타데이터
+- Python 스크립트: `scripts/auto_thumbnail.py` (Pillow + boto3 + PyYAML)
+- 유효 이미지 필터: svg/gif 제외, avatar/logo/icon URL 제외, 10MB 초과, 200×200 미만, 비율 제한
+- Telegram 실패 알림: slug+error 기준 1시간 suppress, run당 1회 요약
+- 기본 썸네일 R2 업로드 완료: `thumbnails/defaults/default_{blog,stories,portfolio}.jpg`
+- applyAndPublish slug 버그 수정: safeSlug(title) → `${today}-${draftId.slice(0, 8)}` (ASCII 전용)
 
 ## Hard Rules
 - NEVER commit `.env.local` or any file containing secrets
