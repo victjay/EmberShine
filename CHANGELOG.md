@@ -175,3 +175,60 @@ Phase 21, 22 상세 내용은 CLAUDE.md 기준.
 - 기본 썸네일: `thumbnails/defaults/default_{section}.jpg`
 - R2 실패 시 Telegram 알림 (slug당 1시간 중복 suppress)
 - 롤아웃 계획: 1차(현재) → 2차(Gemini Vision 최적 선택) → 3차(Imagen 생성)
+
+---
+
+## fix: Phase 21 UX 버그 수정
+`38aa861`
+
+**수정 파일 및 내용:**
+
+- `src/app/private/inbox/actions.ts`
+  - **Fix-1** `saveDraft`: `frontmatter` DB 조회 후 `category` 추출 → `computeDraftStage(rawTitle, body, category)` 반영. frontmatter null/비객체 예외 처리 추가. 반환값에 `newStage` 포함.
+  - **Fix-1** `saveDraftCategory` 신규 추가: category 선택 시 `frontmatter.category` merge 저장 + `draft_stage` 동시 업데이트. 기존 frontmatter 필드 보존.
+  - **Fix-3** `deleteInboxMessage`: `createServiceClient()` → `createAdminClient()` 교체. 에러 시 `return` → `throw error`. 성공 후 `redirect('/private/inbox?tab=messages')` 추가.
+  - **Fix-5** `saveDraft`: FormData에서 `description`, `tags` 수신 → 기존 frontmatter에 merge 저장.
+
+- `src/app/api/telegram/draft/route.ts`
+  - **Fix-2**: `draft_posts` insert 시 `draft_stage` 필드 들여쓰기 오류 수정 (2칸 → 4칸, 동작 정상화).
+
+- `src/app/private/inbox/draft/[id]/DraftEditor.tsx`
+  - **Fix-4**: 발행하기 버튼 + 관련 상태(`isPublishing`, `publishError`, `toast`, `shownToastRef`, `useRef`, `useEffect` 2개, `handlePublish`, `isContentReady`, `ready`) 전부 제거. 임시저장 버튼만 유지.
+  - **Fix-5**: `description`, `tags` 필드 추가 (UI + state + FormData 전송). 편집 화면 진입 시 frontmatter에서 초기값 로딩.
+  - **Fix-6**: 삭제 버튼 추가 (`deleteDraft` + `router.push('/private/inbox')`). `useRouter` import 추가.
+  - **Fix-7**: 삭제 버튼 로딩 상태 (`isDeleting`, spinner) 추가.
+
+- `src/app/private/inbox/draft/[id]/page.tsx`
+  - **Fix-5**: `frontmatter` 추가 select → `description`, `tags` 추출 → `DraftEditor` props 전달.
+
+- `src/app/private/inbox/page.tsx`
+  - **Fix-6**: `DraftList` 각 row에 삭제 form 추가 (`deleteDraft.bind` + `SubmitButton`). AllTab/writing/ready 탭 자동 반영.
+  - **Fix-7**: `SubmitButton` (spinner 포함) 사용으로 로딩 상태 통일.
+
+- `src/app/private/inbox/MessagesTab.tsx`
+  - **Fix-6**: `TelegramCard` `<Link>` 단일 래퍼 → `<div>` + `<Link>` + 삭제 버튼 분리. `deleteInboxMessage` import 추가. `e.preventDefault()` + `e.stopPropagation()` 처리.
+  - **Fix-7**: TelegramCard 삭제 버튼 spinner 추가. NotificationCard 읽음 처리 버튼 spinner 추가.
+
+- `src/app/private/inbox/NewPostModal.tsx`
+  - **Fix-9**: 트리거 `<button>` (HTML 요소)에 `cursor-pointer` 클래스 추가.
+
+**Supabase 실행 필요 (Fix-2 NULL 보정):**
+```sql
+-- 1) ready
+UPDATE draft_posts SET draft_stage = 'ready'
+WHERE draft_stage IS NULL AND status = 'draft'
+  AND title IS NOT NULL AND btrim(title) != ''
+  AND body_markdown IS NOT NULL AND btrim(body_markdown) != ''
+  AND frontmatter IS NOT NULL AND jsonb_typeof(frontmatter) = 'object'
+  AND btrim(frontmatter->>'category') != '';
+-- 2) categorizing
+UPDATE draft_posts SET draft_stage = 'categorizing'
+WHERE draft_stage IS NULL AND status = 'draft'
+  AND title IS NOT NULL AND btrim(title) != ''
+  AND body_markdown IS NOT NULL AND btrim(body_markdown) != ''
+  AND (frontmatter IS NULL OR jsonb_typeof(frontmatter) != 'object'
+    OR frontmatter->>'category' IS NULL OR btrim(frontmatter->>'category') = '');
+-- 3) writing (나머지)
+UPDATE draft_posts SET draft_stage = 'writing'
+WHERE draft_stage IS NULL AND status = 'draft';
+```
