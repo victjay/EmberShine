@@ -7,7 +7,7 @@ import NewPostModal from './NewPostModal'
 import CategorizeCard from './CategorizeCard'
 import MessagesTab from './MessagesTab'
 import SubmitButton from '@/components/SubmitButton'
-import { executeDeletePost, cancelDeletePost } from './actions'
+import { executeDeletePost, cancelDeletePost, deleteDraft } from './actions'
 import type { CategorizeOutput, SystemNotification } from '@/types'
 
 type SearchParams = Promise<{ tab?: string; saved?: string; commit?: string }>
@@ -341,24 +341,34 @@ function DraftList({ items, emptyText }: { items: DraftRow[]; emptyText: string 
   }
   return (
     <ul className="space-y-2">
-      {items.map((item) => (
-        <li key={item.id}>
-          <Link
-            href={`/private/inbox/draft/${item.id}`}
-            className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-slate-400 hover:shadow-sm transition-all text-sm"
-          >
-            <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 shrink-0">
-              {item.section}
-            </span>
-            <span className="flex-1 min-w-0 truncate text-slate-800">
-              {item.title || '(제목 없음)'}
-            </span>
-            <time className="font-mono text-xs text-slate-400 shrink-0">
-              {item.created_at.slice(0, 10)}
-            </time>
-          </Link>
-        </li>
-      ))}
+      {items.map((item) => {
+        const deleteAction = deleteDraft.bind(null, item.id) as unknown as (formData: FormData) => Promise<void>
+        return (
+          <li key={item.id} className="flex items-center rounded-lg border border-slate-200 hover:border-slate-400 hover:shadow-sm transition-all">
+            <Link
+              href={`/private/inbox/draft/${item.id}`}
+              className="flex items-center gap-3 p-3 flex-1 min-w-0 text-sm"
+            >
+              <span className="px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-600 shrink-0">
+                {item.section}
+              </span>
+              <span className="flex-1 min-w-0 truncate text-slate-800">
+                {item.title || '(제목 없음)'}
+              </span>
+              <time className="font-mono text-xs text-slate-400 shrink-0">
+                {item.created_at.slice(0, 10)}
+              </time>
+            </Link>
+            <form action={deleteAction} className="pr-2 shrink-0">
+              <SubmitButton
+                label="삭제"
+                loadingLabel="삭제 중…"
+                className="px-2.5 py-1 text-xs border border-red-100 text-red-500 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors cursor-pointer"
+              />
+            </form>
+          </li>
+        )
+      })}
     </ul>
   )
 }

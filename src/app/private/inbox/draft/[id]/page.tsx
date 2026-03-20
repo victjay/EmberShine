@@ -8,11 +8,19 @@ export default async function DraftEditPage({ params }: { params: Promise<{ id: 
 
   const { data: draft } = await supabase
     .from('draft_posts')
-    .select('id, section, title, body_markdown, draft_stage, status')
+    .select('id, section, title, body_markdown, draft_stage, status, frontmatter')
     .eq('id', id)
     .single()
 
   if (!draft || draft.status !== 'draft') notFound()
+
+  const fm = (draft.frontmatter && typeof draft.frontmatter === 'object' && !Array.isArray(draft.frontmatter))
+    ? draft.frontmatter as Record<string, unknown>
+    : {}
+  const initialDescription = (fm.description as string | undefined) ?? ''
+  const initialTags = Array.isArray(fm.tags)
+    ? (fm.tags as string[]).join(', ')
+    : (typeof fm.tags === 'string' ? fm.tags : '')
 
   return (
     <main className="max-w-3xl mx-auto py-10 px-4">
@@ -22,6 +30,8 @@ export default async function DraftEditPage({ params }: { params: Promise<{ id: 
         initialBody={draft.body_markdown ?? ''}
         draftStage={draft.draft_stage ?? 'writing'}
         section={draft.section}
+        initialDescription={initialDescription}
+        initialTags={initialTags}
       />
     </main>
   )

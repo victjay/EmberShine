@@ -6,6 +6,7 @@ import { generateDraft } from '@/lib/ai/draft'
 import { sendTelegramMessage } from '@/lib/telegram/sender'
 import { sendDraftPreview } from '@/lib/telegram/preview'
 import { safeSlug } from '@/lib/content/slug-utils'
+import { computeDraftStage } from '@/lib/drafts/computeDraftStage'
 
 interface DraftRouteBody {
   inboxId: string
@@ -77,7 +78,8 @@ export async function POST(request: NextRequest) {
       ai_meta_description: draft.meta_description,
       ai_translation:      draft.translation,
     },
-    status: 'draft',
+    status:      'draft',
+    draft_stage: computeDraftStage(draft.titles[0], draft.body_markdown, null),
   })
 
   if (insertError) {

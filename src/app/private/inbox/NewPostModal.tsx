@@ -54,7 +54,7 @@ export default function NewPostModal() {
     <>
       <button
         onClick={handleOpen}
-        className="px-3 py-1.5 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-700 transition-colors"
+        className="px-3 py-1.5 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-700 transition-colors cursor-pointer"
       >
         + 새 글 작성
       </button>

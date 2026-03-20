@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { markNotificationRead } from './actions'
+import { markNotificationRead, deleteInboxMessage } from './actions'
 import type { SystemNotification } from '@/types'
 
 type SubFilter = 'all' | 'telegram' | 'system' | 'action'
@@ -187,8 +187,14 @@ function NotificationCard({
             <button
               onClick={() => startTransition(() => { onMarkRead(n.id) })}
               disabled={isPending}
-              className="text-xs text-slate-500 hover:text-slate-900 underline underline-offset-2 disabled:opacity-50"
+              className="text-xs text-slate-500 hover:text-slate-900 underline underline-offset-2 disabled:opacity-50 flex items-center gap-1"
             >
+              {isPending && (
+                <svg className="animate-spin h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              )}
               {isPending ? '처리 중…' : '읽음 처리'}
             </button>
           )}
@@ -202,47 +208,76 @@ function NotificationCard({
 
 function TelegramCard({ message: m }: { message: TelegramMessageRow }) {
   const badge = STATUS_BADGE[m.status] ?? { label: m.status, cls: 'bg-slate-100 text-slate-600' }
+  const [isDeleting, startDelete] = useTransition()
+
+  function handleDelete(e: React.MouseEvent) {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!confirm('이 메시지를 삭제하시겠습니까?')) return
+    startDelete(async () => {
+      const formData = new FormData()
+      formData.set('id', m.id)
+      await deleteInboxMessage(formData)
+    })
+  }
 
   return (
-    <Link
-      href={`/private/inbox/${m.id}`}
-      className="block border border-slate-200 rounded-lg p-4 text-sm hover:border-blue-300 hover:shadow-sm transition-all"
-    >
-      <div className="flex items-start gap-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-500">Telegram</span>
-            <span className={`px-2 py-0.5 rounded text-xs font-medium ${badge.cls}`}>
-              {badge.label}
-            </span>
-            {m.target_section && (
-              <span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600">
-                {m.target_section}
+    <div className="block border border-slate-200 rounded-lg text-sm hover:border-blue-300 hover:shadow-sm transition-all">
+      <Link
+        href={`/private/inbox/${m.id}`}
+        className="block p-4"
+      >
+        <div className="flex items-start gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              <span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-500">Telegram</span>
+              <span className={`px-2 py-0.5 rounded text-xs font-medium ${badge.cls}`}>
+                {badge.label}
               </span>
-            )}
-            {m.draft_generated_at && (
-              <span className="px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-700">
-                AI 초안
-              </span>
+              {m.target_section && (
+                <span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-600">
+                  {m.target_section}
+                </span>
+              )}
+              {m.draft_generated_at && (
+                <span className="px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-700">
+                  AI 초안
+                </span>
+              )}
+            </div>
+            <p className="text-slate-700 line-clamp-2">
+              {m.text_content ?? `(${m.message_type})`}
+            </p>
+            {m.parsed_tags && m.parsed_tags.length > 0 && (
+              <div className="flex gap-1 mt-2 flex-wrap">
+                {m.parsed_tags.map((t) => (
+                  <span key={t} className="px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
+                    {t}
+                  </span>
+                ))}
+              </div>
             )}
           </div>
-          <p className="text-slate-700 line-clamp-2">
-            {m.text_content ?? `(${m.message_type})`}
-          </p>
-          {m.parsed_tags && m.parsed_tags.length > 0 && (
-            <div className="flex gap-1 mt-2 flex-wrap">
-              {m.parsed_tags.map((t) => (
-                <span key={t} className="px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
-                  {t}
-                </span>
-              ))}
-            </div>
-          )}
+          <time className="font-mono text-xs text-slate-400 shrink-0">
+            {m.telegram_date ? m.telegram_date.slice(0, 16).replace('T', ' ') : ''}
+          </time>
         </div>
-        <time className="font-mono text-xs text-slate-400 shrink-0">
-          {m.telegram_date ? m.telegram_date.slice(0, 16).replace('T', ' ') : ''}
-        </time>
+      </Link>
+      <div className="px-4 pb-3 flex justify-end">
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting}
+          className="px-2.5 py-1 text-xs border border-red-100 text-red-500 rounded-lg hover:border-red-300 hover:bg-red-50 transition-colors disabled:opacity-50 flex items-center gap-1 cursor-pointer"
+        >
+          {isDeleting && (
+            <svg className="animate-spin h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+          )}
+          {isDeleting ? '삭제 중…' : '삭제'}
+        </button>
       </div>
-    </Link>
+    </div>
   )
 }

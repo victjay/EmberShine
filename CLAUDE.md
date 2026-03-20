@@ -87,30 +87,6 @@ Never push if:
 - .env.local or secret files are staged
 - Phase completion criteria are not fully met
 
-## Phase History
-
-### Phase 21 — 콘텐츠 상태 모델 + Workspace + AI 카테고리 추천
-- 상태 모델: `status = draft | published`, `draft_stage = writing | categorizing | ready`
-- `unassigned` 별도 상태 제거 → `draft_stage`로 흡수
-- Inbox → Workspace로 재정의 (탭: 전체/작성중/카테고리지정필요/발행준비완료/삭제대기/메시지)
-- AI 카테고리 이중 추천 (기존 top3 + 신규 top3), content_hash 기반 캐시 무효화
-- 카테고리 관리 UI (`/private/categories`): 추가/삭제, soft-delete tombstone
-- 카테고리 삭제 트랜잭션: GitHub 삭제 → Supabase draft 복원 (순서 엄수)
-- 메시지 탭: Telegram + 시스템 알림 통합, 서브필터 (전체/Telegram/시스템 알림/조치 필요)
-- `system_notifications` 테이블: type/source/action_required/read_at
-- Supabase migrations: `004_phase21_schema.sql`, `005_phase21_notifications.sql`
-
-### Phase 22 — 썸네일 자동화 1차
-- GitHub Actions 기반 자동 썸네일 지정 (`auto-thumbnail.yml`)
-- 3단계 롤아웃 중 1차 구현 (첫 번째 유효 이미지 / 섹션별 기본 썸네일)
-- 루프 방지 4중 방어 (bot actor 제외 / concurrency cancel / [skip ci] / thumbnail 존재 체크)
-- thumbnail_locked / thumbnail_source 메타데이터
-- Python 스크립트: `scripts/auto_thumbnail.py` (Pillow + boto3 + PyYAML)
-- 유효 이미지 필터: svg/gif 제외, avatar/logo/icon URL 제외, 10MB 초과, 200×200 미만, 비율 제한
-- Telegram 실패 알림: slug+error 기준 1시간 suppress, run당 1회 요약
-- 기본 썸네일 R2 업로드 완료: `thumbnails/defaults/default_{blog,stories,portfolio}.jpg`
-- applyAndPublish slug 버그 수정: safeSlug(title) → `${today}-${draftId.slice(0, 8)}` (ASCII 전용)
-
 ## Hard Rules
 - NEVER commit `.env.local` or any file containing secrets
 - NEVER expose R2 credentials to client
@@ -132,6 +108,9 @@ Never push if:
 - NEVER leave `inbox_messages.status` as `'processing'` on failure
   → always update to `'failed'` in catch block
 - Telegram approve: success → `'done'`, failure → `'failed'`
+- If example code conflicts with actual code, NEVER implement the example blindly.
+  First summarize the differences, then propose an adjusted implementation based on the real codebase.
+- After each step, run `npx tsc --noEmit`, report the result, and do not proceed to the next step until confirmed.
 
 ## Content Architecture
 
@@ -173,6 +152,8 @@ Never push if:
 - `writing`      → 본문 작성 중 (회색 배지)
 - `categorizing` → 카테고리 미지정 (노란 배지)
 - `ready`        → 발행 validation 전체 통과 (초록 배지)
+- `draft_stage=ready` MUST be derived from exactly the same validation rules that enable the publish button.
+  Never create a separate “ready” rule.
 
 #### 단일 소스 원칙
 - draft     → Supabase 단일 소스 (GitHub push 절대 없음)
@@ -336,13 +317,16 @@ Status values: `building | ready | error | canceled`
 - `action_required=true` → 메시지 탭 배지 카운트에 포함 (미읽음 기준)
 - `read_at IS NOT NULL` → 읽음 처리됨 (opacity-60, 조치 필요 서브필터에서 제외)
 - 카테고리 삭제 시 영향받는 포스트 있으면 자동 삽입 (source='category', type='warning')
+- NEVER mix Telegram inbound messages with system events in the same table.
+  Telegram messages and `system_notifications` must remain separate persistence layers.
 
 ### createAdminClient()
 ```ts
 // src/lib/supabase/admin.ts — server only
-// Uses SUPABASE_SERVICE_ROLE_KEY
-// NEVER use for user-facing data — admin_jobs, deployments only
+// Uses SUPABASE_SERVICE_ROLE_KEYj
+// NEVER use for user-facing data — admin_jobs, deployments, system_notifications only
 ```
+
 
 ## i18n Architecture
 
@@ -475,6 +459,8 @@ export async function myAction(formData: FormData) {
    - `status=draft`, `draft_stage=categorizing`
 3. AI 재추천 자동 시작
 4. soft-delete tombstone 보관
+5. If GitHub original deletion fails, do NOT leave a duplicated recovered draft behind.
+  Either rollback the restored Supabase draft, or finalize the draft only after GitHub deletion succeeds.
 
 ### soft-delete tombstone
 - 삭제된 카테고리명 → `excluded_categories` 파라미터로 AI 재제안 차단

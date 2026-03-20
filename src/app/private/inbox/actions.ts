@@ -12,6 +12,7 @@ import { buildMarkdown } from '@/lib/content/builder'
 import { buildEnMarkdown } from '@/lib/content/en-file'
 import { translatePost } from '@/lib/ai/translate'
 import { runCategorizeAI } from '@/lib/ai/categorize'
+import { computeDraftStage } from '@/lib/drafts/computeDraftStage'
 import type { CategorizeOutput } from '@/types'
 import matter from 'gray-matter'
 import crypto from 'crypto'
@@ -32,7 +33,7 @@ export async function deleteInboxMessage(formData: FormData): Promise<void> {
   const id = formData.get('id') as string
   if (!id) return
 
-  const supabase = createServiceClient()
+  const supabase = createAdminClient()
 
   // 연결된 draft_posts 먼저 삭제
   await supabase.from('draft_posts').delete().eq('inbox_id', id)
@@ -45,10 +46,11 @@ export async function deleteInboxMessage(formData: FormData): Promise<void> {
 
   if (error) {
     console.error('[inbox] deleteInboxMessage failed:', error.message)
-    return
+    throw error
   }
 
   revalidatePath('/private/inbox')
+  redirect('/private/inbox?tab=messages')
 }
 
 export async function executeDeletePost(jobId: string) {
@@ -112,21 +114,53 @@ export async function saveDraft(
 ): Promise<{ error: string } | { newStage: string }> {
   await assertAdmin()
 
-  const id       = formData.get('id') as string
-  const rawTitle = (formData.get('title') as string)?.trim() ?? ''
-  const body     = (formData.get('body') as string) ?? ''
-  const title    = rawTitle || '제목 없음'
+  const id          = formData.get('id') as string
+  const rawTitle    = (formData.get('title') as string)?.trim() ?? ''
+  const body        = (formData.get('body') as string) ?? ''
+  const title       = rawTitle || '제목 없음'
+  const description = (formData.get('description') as string)?.trim() ?? ''
+  const tagsRaw     = (formData.get('tags') as string) ?? ''
+  const tags        = tagsRaw.split(',').map((t) => t.trim()).filter(Boolean)
 
   if (!id) return { error: '잘못된 요청입니다.' }
 
-  // 발행 버튼 활성화 조건과 동일한 validation → draft_stage 자동 전환
-  const isReady  = rawTitle.length > 0 && body.trim().length > 0
-  const newStage = isReady ? 'ready' : 'writing'
-
   const supabase = createServiceClient()
+
+  // 기존 draft의 frontmatter 조회 → category 읽기 + description/tags merge
+  const { data: existing, error: fetchError } = await supabase
+    .from('draft_posts')
+    .select('frontmatter')
+    .eq('id', id)
+    .single()
+
+  if (fetchError || !existing) return { error: 'Draft 조회 실패: ' + (fetchError?.message ?? '없음') }
+
+  let category: string | null
+  let updatedFm: Record<string, unknown>
+  try {
+    const fm = existing.frontmatter
+    if (fm === null || fm === undefined) {
+      category = null
+      updatedFm = {}
+    } else if (typeof fm !== 'object' || Array.isArray(fm)) {
+      throw new Error('frontmatter가 예외 타입입니다. 보고 후 수정 필요.')
+    } else {
+      const fmObj = fm as Record<string, unknown>
+      category = (fmObj.category as string | undefined) ?? null
+      updatedFm = { ...fmObj }
+    }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'frontmatter 파싱 오류' }
+  }
+
+  updatedFm.description = description || null
+  updatedFm.tags        = tags.length > 0 ? tags : null
+
+  const newStage = computeDraftStage(rawTitle, body, category)
+
   const { error } = await supabase
     .from('draft_posts')
-    .update({ title, body_markdown: body, draft_stage: newStage })
+    .update({ title, body_markdown: body, draft_stage: newStage, frontmatter: updatedFm })
     .eq('id', id)
 
   if (error) return { error: '저장 실패: ' + error.message }
@@ -215,6 +249,61 @@ export async function cancelDeletePost(jobId: string) {
 
   // 6. revalidatePath
   revalidatePath('/private/inbox')
+}
+
+// ────────────────────────────────────────────────────────────────
+// Draft 카테고리 저장 (frontmatter.category + draft_stage 동시 업데이트)
+// ────────────────────────────────────────────────────────────────
+
+export async function saveDraftCategory(
+  draftId: string,
+  categoryName: string,
+): Promise<{ error: string } | { newStage: string }> {
+  await assertAdmin()
+
+  if (!draftId || !categoryName.trim()) return { error: '잘못된 요청입니다.' }
+
+  const supabase = createServiceClient()
+
+  const { data: draft, error: fetchError } = await supabase
+    .from('draft_posts')
+    .select('title, body_markdown, frontmatter')
+    .eq('id', draftId)
+    .single()
+
+  if (fetchError || !draft) {
+    return { error: 'Draft 조회 실패: ' + (fetchError?.message ?? '없음') }
+  }
+
+  let mergedFm: Record<string, unknown>
+  try {
+    const fm = draft.frontmatter
+    if (fm === null || fm === undefined) {
+      mergedFm = {}
+    } else if (typeof fm !== 'object' || Array.isArray(fm)) {
+      throw new Error('frontmatter가 예외 타입입니다. 보고 후 수정 필요.')
+    } else {
+      mergedFm = { ...(fm as Record<string, unknown>) }
+    }
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : 'frontmatter 파싱 오류' }
+  }
+
+  mergedFm.category = categoryName
+
+  const newStage = computeDraftStage(draft.title ?? '', draft.body_markdown ?? '', categoryName)
+
+  const { error: updateError } = await supabase
+    .from('draft_posts')
+    .update({ frontmatter: mergedFm, draft_stage: newStage })
+    .eq('id', draftId)
+
+  if (updateError) return { error: '저장 실패: ' + updateError.message }
+
+  revalidatePath(`/private/inbox/draft/${draftId}`)
+  revalidatePath('/private/inbox')
+
+  return { newStage }
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -389,10 +478,16 @@ export async function applyAndPublish(
     return { error: `GitHub push 실패: ${e instanceof Error ? e.message : '알 수 없는 오류'}` }
   }
 
-  // draft 상태 published 로 전환
+  // draft 상태 published 로 전환 (frontmatter.category + draft_stage 동시 업데이트)
+  const updatedFm = { ...fm, category: categoryName }
   await supabase
     .from('draft_posts')
-    .update({ status: 'published', github_path: postId })
+    .update({
+      status:      'published',
+      github_path: postId,
+      frontmatter: updatedFm,
+      draft_stage: computeDraftStage(draft.title, draft.body_markdown ?? '', categoryName),
+    })
     .eq('id', draftId)
 
   revalidatePath('/private/inbox')
