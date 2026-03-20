@@ -1,0 +1,55 @@
+name: Auto Thumbnail
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'content/**/*.md'
+
+jobs:
+  auto-thumbnail:
+    # 루프 방지 1: bot 커밋 제외
+    if: github.actor != 'github-actions[bot]'
+
+    runs-on: ubuntu-latest
+
+    # 루프 방지 2: 연속 push 시 최신 커밋만 처리
+    concurrency:
+      group: thumbnail-${{ github.ref }}
+      cancel-in-progress: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests Pillow boto3
+
+      - name: Run thumbnail automation
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+          R2_PUBLIC_URL: ${{ secrets.R2_PUBLIC_URL }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scripts/auto_thumbnail.py
+
+      - name: Commit and push if changed
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git diff --quiet && git diff --staged --quiet || (
+            git add content/
+            # 루프 방지 3: [skip ci] 포함
+            git commit -m "chore: auto-thumbnail [skip ci]"
+            git push
+          )
