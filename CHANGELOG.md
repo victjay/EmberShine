@@ -178,57 +178,167 @@ Phase 21, 22 상세 내용은 CLAUDE.md 기준.
 
 ---
 
-## fix: Phase 21 UX 버그 수정
-`38aa861`
+## Phase 21 UX 버그 수정 (Fix-1~7, Fix-9)
+`38aa861` / `87a4ada`
 
-**수정 파일 및 내용:**
+> Fix-8 (UI 라벨)은 inbox 관련 라벨이 없어 적용 제외.
 
-- `src/app/private/inbox/actions.ts`
-  - **Fix-1** `saveDraft`: `frontmatter` DB 조회 후 `category` 추출 → `computeDraftStage(rawTitle, body, category)` 반영. frontmatter null/비객체 예외 처리 추가. 반환값에 `newStage` 포함.
-  - **Fix-1** `saveDraftCategory` 신규 추가: category 선택 시 `frontmatter.category` merge 저장 + `draft_stage` 동시 업데이트. 기존 frontmatter 필드 보존.
-  - **Fix-3** `deleteInboxMessage`: `createServiceClient()` → `createAdminClient()` 교체. 에러 시 `return` → `throw error`. 성공 후 `redirect('/private/inbox?tab=messages')` 추가.
-  - **Fix-5** `saveDraft`: FormData에서 `description`, `tags` 수신 → 기존 frontmatter에 merge 저장.
+---
 
-- `src/app/api/telegram/draft/route.ts`
-  - **Fix-2**: `draft_posts` insert 시 `draft_stage` 필드 들여쓰기 오류 수정 (2칸 → 4칸, 동작 정상화).
+### Fix-1. `saveDraft` category 조건 버그
 
-- `src/app/private/inbox/draft/[id]/DraftEditor.tsx`
-  - **Fix-4**: 발행하기 버튼 + 관련 상태(`isPublishing`, `publishError`, `toast`, `shownToastRef`, `useRef`, `useEffect` 2개, `handlePublish`, `isContentReady`, `ready`) 전부 제거. 임시저장 버튼만 유지.
-  - **Fix-5**: `description`, `tags` 필드 추가 (UI + state + FormData 전송). 편집 화면 진입 시 frontmatter에서 초기값 로딩.
-  - **Fix-6**: 삭제 버튼 추가 (`deleteDraft` + `router.push('/private/inbox')`). `useRouter` import 추가.
-  - **Fix-7**: 삭제 버튼 로딩 상태 (`isDeleting`, spinner) 추가.
+**파일:** `src/app/private/inbox/actions.ts`
 
-- `src/app/private/inbox/draft/[id]/page.tsx`
-  - **Fix-5**: `frontmatter` 추가 select → `description`, `tags` 추출 → `DraftEditor` props 전달.
+- `saveDraft`: 기존에는 FormData(`id`, `title`, `body`)만 수신하고 DB 조회 없이 `computeDraftStage`를 호출 → `category`가 항상 `null`로 처리되는 버그.
+  - `draft_posts.frontmatter`를 DB에서 조회하도록 변경
+  - `frontmatter.category` 추출 후 `computeDraftStage(rawTitle, body, category)` 적용
+  - frontmatter null → category `null`로 간주
+  - frontmatter가 객체가 아닌 예외 타입(array/scalar 등) → 에러 반환 (임의 진행 금지)
+  - 반환값에 `newStage` 포함
 
-- `src/app/private/inbox/page.tsx`
-  - **Fix-6**: `DraftList` 각 row에 삭제 form 추가 (`deleteDraft.bind` + `SubmitButton`). AllTab/writing/ready 탭 자동 반영.
-  - **Fix-7**: `SubmitButton` (spinner 포함) 사용으로 로딩 상태 통일.
+- `saveDraftCategory` 신규 Server Action 추가:
+  - 카테고리 선택 시 `frontmatter.category`를 먼저 저장하는 전용 액션
+  - 기존 frontmatter 필드 spread 후 `category` merge (다른 필드 덮어쓰기 없음)
+  - `computeDraftStage(title, body, categoryName)` 재계산 → `draft_stage` 동시 업데이트
+  - 반환: `{ newStage }` or `{ error }`
 
-- `src/app/private/inbox/MessagesTab.tsx`
-  - **Fix-6**: `TelegramCard` `<Link>` 단일 래퍼 → `<div>` + `<Link>` + 삭제 버튼 분리. `deleteInboxMessage` import 추가. `e.preventDefault()` + `e.stopPropagation()` 처리.
-  - **Fix-7**: TelegramCard 삭제 버튼 spinner 추가. NotificationCard 읽음 처리 버튼 spinner 추가.
+---
 
-- `src/app/private/inbox/NewPostModal.tsx`
-  - **Fix-9**: 트리거 `<button>` (HTML 요소)에 `cursor-pointer` 클래스 추가.
+### Fix-2. Telegram webhook `draft_stage` NULL 버그
 
-**Supabase 실행 필요 (Fix-2 NULL 보정):**
+**파일:** `src/app/api/telegram/draft/route.ts`
+
+- `draft_posts` insert 시 `draft_stage` 필드 들여쓰기가 2칸으로 잘못 되어 있어 실제로 저장되지 않던 버그 → 4칸으로 수정하여 정상 동작
+- insert 시 값: `computeDraftStage(draft.titles[0], draft.body_markdown, null)`
+  - Telegram 초안 생성 시점에는 category 없음 → `'categorizing'` 반환
+
+**Supabase NULL 보정 SQL (실행 완료):**
+
 ```sql
--- 1) ready
+-- 반드시 이 순서로 실행
+
+-- 1) title/body/frontmatter.category 모두 있으면 → ready
 UPDATE draft_posts SET draft_stage = 'ready'
 WHERE draft_stage IS NULL AND status = 'draft'
   AND title IS NOT NULL AND btrim(title) != ''
   AND body_markdown IS NOT NULL AND btrim(body_markdown) != ''
-  AND frontmatter IS NOT NULL AND jsonb_typeof(frontmatter) = 'object'
+  AND frontmatter IS NOT NULL
+  AND jsonb_typeof(frontmatter) = 'object'
   AND btrim(frontmatter->>'category') != '';
--- 2) categorizing
+
+-- 2) title/body 있고 frontmatter.category 없으면 → categorizing
 UPDATE draft_posts SET draft_stage = 'categorizing'
 WHERE draft_stage IS NULL AND status = 'draft'
   AND title IS NOT NULL AND btrim(title) != ''
   AND body_markdown IS NOT NULL AND btrim(body_markdown) != ''
-  AND (frontmatter IS NULL OR jsonb_typeof(frontmatter) != 'object'
-    OR frontmatter->>'category' IS NULL OR btrim(frontmatter->>'category') = '');
--- 3) writing (나머지)
+  AND (
+    frontmatter IS NULL
+    OR jsonb_typeof(frontmatter) != 'object'
+    OR frontmatter->>'category' IS NULL
+    OR btrim(frontmatter->>'category') = ''
+  );
+
+-- 3) 나머지 전부 → writing
 UPDATE draft_posts SET draft_stage = 'writing'
 WHERE draft_stage IS NULL AND status = 'draft';
 ```
+
+---
+
+### Fix-3. 메시지 탭 삭제 후 404
+
+**파일:** `src/app/private/inbox/actions.ts` — `deleteInboxMessage`
+
+- `createServiceClient()` → `createAdminClient()` 교체 (RLS 우회 필요)
+- 에러 처리 강화: `if (error) { return }` → `if (error) { throw error }`
+- 삭제 성공 후 `redirect('/private/inbox?tab=messages')` 추가 (try-catch 바깥, `revalidatePath` 다음)
+- FK 정리 순서 유지: `draft_posts` 삭제 → `inbox_messages` 삭제
+
+---
+
+### Fix-4. 편집 화면 발행하기 버튼 제거
+
+**파일:** `src/app/private/inbox/draft/[id]/DraftEditor.tsx`
+
+편집 화면에서 발행하기 버튼 제거. 발행은 categorizing 탭 `CategorizeCard`에서만 수행.
+
+제거 항목 (발행 버튼 전용, 다른 UI에서 미사용 확인 후 제거):
+- `publishDraft` import
+- `isPublishing`, `startPublish` (useTransition)
+- `publishError` state
+- `handlePublish` 함수
+- `isContentReady` 함수 / `ready` 변수
+- `toast` state / `shownToastRef` (useRef) / useEffect 2개 (toast 전용)
+- `useRef`, `useEffect` import
+- 발행하기 버튼 JSX / publishError 표시 JSX / Toast 블록 전체
+
+유지 항목: 임시저장 버튼, `savedFlash`, `saveError`, `currentStage`, `isSaving`
+
+---
+
+### Fix-5. 편집 화면 Tags / Description 필드 추가
+
+**저장 구조:** 새 컬럼 추가 없음. 기존 `frontmatter` JSONB 컬럼에 저장.
+`date` 필드는 draft에 저장하지 않으므로 편집 화면에서 제외.
+
+**파일:** `src/app/private/inbox/draft/[id]/page.tsx`
+- `frontmatter` 추가 select
+- `frontmatter.description`, `frontmatter.tags` 추출 → `DraftEditor` props로 전달
+
+**파일:** `src/app/private/inbox/draft/[id]/DraftEditor.tsx`
+- `initialDescription: string`, `initialTags: string` props 추가
+- `description`, `tags` state 추가 (초기값: frontmatter에서 로딩)
+- UI 필드 순서: Title → Tags (text input, 쉼표 구분) → Description (textarea, optional) → Content
+- FormData에 `description`, `tags` 포함하여 `saveDraft`에 전송
+
+**파일:** `src/app/private/inbox/actions.ts` — `saveDraft`
+- FormData에서 `description`, `tags` 수신
+- `tags`: 쉼표 분리 후 trim/filter → `string[]`
+- 기존 frontmatter spread 후 `description`, `tags` merge 저장
+- `frontmatter: updatedFm` update에 포함 (category 등 기존 필드 보존)
+- frontmatter 예외 타입 시 에러 반환
+
+---
+
+### Fix-6. 삭제 버튼 추가
+
+**DraftList** (`src/app/private/inbox/page.tsx`)
+- `deleteDraft` import 추가
+- 각 row: `<Link>` 단독 → `<li>` + `<Link>` + 삭제 `<form>` 분리
+- 삭제: `deleteDraft.bind(null, item.id)` + `SubmitButton` (form action 패턴)
+- AllTab → DraftGroup → DraftList 재사용 구조이므로 all/writing/ready 탭 전체 자동 반영
+
+**TelegramCard** (`src/app/private/inbox/MessagesTab.tsx`)
+- `deleteInboxMessage` import 추가
+- `<Link>` 단일 래퍼 → `<div>` + `<Link>` + 삭제 버튼 분리
+- 삭제 버튼 onClick: `e.preventDefault()` + `e.stopPropagation()` → `useTransition` 패턴
+- FormData 직접 생성 후 `deleteInboxMessage(formData)` 호출
+
+**DraftEditor** (`src/app/private/inbox/draft/[id]/DraftEditor.tsx`)
+- `deleteDraft` import, `useRouter` import 추가
+- `isDeleting`, `startDelete` (useTransition) 추가
+- `handleDelete`: confirm → `deleteDraft(id)` → 성공 시 `router.push('/private/inbox')`
+- `deleteError` state 추가 (에러 표시)
+- 삭제 버튼: `isSaving || isDeleting` 시 비활성
+
+---
+
+### Fix-7. 버튼 로딩 상태 통일
+
+시각적 통일. 구조에 맞는 패턴 유지 (form action → SubmitButton, onClick → useTransition).
+
+| 컴포넌트 | 버튼 | 패턴 | 변경 내용 |
+|---|---|---|---|
+| `DraftList` | 삭제 | `<form>` + `SubmitButton` | Fix-6과 함께 적용 |
+| `TelegramCard` | 삭제 | `useTransition` | spinner + `isDeleting` disabled |
+| `DraftEditor` | 삭제 | `useTransition` | spinner + `isDeleting` disabled |
+| `NotificationCard` | 읽음 처리 | `useTransition` | 기존 텍스트 "처리 중…"에 spinner 추가 |
+| `CategorizeCard` | 삭제 | — | 이미 존재(`handleDelete`), 미변경 |
+
+---
+
+### Fix-9. `NewPostModal` cursor-pointer 누락
+
+**파일:** `src/app/private/inbox/NewPostModal.tsx`
+
+- 트리거 `<button>` (HTML 요소 확인)에 `cursor-pointer` 클래스 추가
