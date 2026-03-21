@@ -117,6 +117,9 @@ Never push if:
   If unverified, report and hold before implementing.
 - NEVER hardcode time values, polling intervals, or quiet periods arbitrarily (e.g. TTL, retry delay, suppress window).
   Always confirm the value before use.
+- Published slug는 최초 생성 후 불변. 재발행/재빌드 시 slug 재계산 금지.
+- 상태 변경은 compare-and-set 방식 사용. WHERE 조건부 UPDATE 후 영향 row 수 확인 필수.
+- lifecycle_state 컬럼은 status와 별도로 관리. status='draft|published' 체계 오염 금지.
 
 ## Content Architecture
 
