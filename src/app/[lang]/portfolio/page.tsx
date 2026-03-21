@@ -6,6 +6,8 @@ import { getDictionary } from '../../../../messages'
 import { getAllPosts } from '@/lib/content'
 import PageHeading from '@/components/PageHeading'
 import SectionControls from '@/components/SectionControls'
+import DeleteButton from '@/components/DeleteButton'
+import { requestDeletePost } from '@/app/private/portfolio/actions'
 
 interface Props {
   params: Promise<{ lang: string }>
@@ -67,7 +69,7 @@ export default async function PortfolioPage({ params }: Props) {
         ) : (
           <ul className="flex flex-col gap-4">
             {projects.map((post) => (
-              <li key={post.slug}>
+              <li key={post.slug} className="relative">
                 <Link href={`/${lang}/portfolio/${post.slug}`} className="group block">
                   <article className="border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-sm transition-all bg-white">
                     <div className="flex items-start justify-between gap-4">
@@ -110,6 +112,14 @@ export default async function PortfolioPage({ params }: Props) {
                     </div>
                   </article>
                 </Link>
+                <div className="absolute top-3 right-3 z-10">
+                  <DeleteButton
+                    postId={post.slug}
+                    section="portfolio"
+                    title={post.title}
+                    requestDeleteAction={requestDeletePost}
+                  />
+                </div>
               </li>
             ))}
           </ul>

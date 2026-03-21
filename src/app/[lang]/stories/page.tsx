@@ -6,6 +6,7 @@ import { getAllPosts } from '@/lib/content'
 import PostSearch from '@/components/PostSearch'
 import PageHeading from '@/components/PageHeading'
 import SectionControls from '@/components/SectionControls'
+import { requestDeletePost } from '@/app/private/stories/actions'
 
 interface Props {
   params: Promise<{ lang: string }>
@@ -50,7 +51,7 @@ export default async function StoriesPage({ params }: Props) {
         <SectionControls newHref="/private/stories/new" />
       </div>
 
-      <PostSearch posts={posts} layout="grid" />
+      <PostSearch posts={posts} layout="grid" requestDeleteAction={requestDeletePost} />
     </main>
   )
 }

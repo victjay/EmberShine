@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { t } from '@/lib/i18n/strings'
+import DeleteButton from '@/components/DeleteButton'
 
 interface Post {
   slug: string
@@ -17,12 +18,18 @@ interface Post {
   [key: string]: unknown
 }
 
+type DeleteAction = (
+  state: { error?: string } | null,
+  formData: FormData
+) => Promise<{ error?: string } | void>
+
 interface Props {
   posts: Post[]
   layout?: 'list' | 'grid'
+  requestDeleteAction?: DeleteAction
 }
 
-export default function PostSearch({ posts, layout }: Props) {
+export default function PostSearch({ posts, layout, requestDeleteAction }: Props) {
   const [query, setQuery] = useState('')
   const [currentLayout, setCurrentLayout] = useState<'list' | 'grid'>(layout ?? 'list')
   const params = useParams()
@@ -90,19 +97,19 @@ export default function PostSearch({ posts, layout }: Props) {
       {filtered.length === 0 ? (
         <p className="text-slate-400 text-sm">{t.search.empty[lang]}</p>
       ) : currentLayout === 'list' ? (
-        <ListLayout posts={filtered} lang={lang} />
+        <ListLayout posts={filtered} lang={lang} requestDeleteAction={requestDeleteAction} />
       ) : (
-        <GridLayout posts={filtered} lang={lang} />
+        <GridLayout posts={filtered} lang={lang} requestDeleteAction={requestDeleteAction} />
       )}
     </>
   )
 }
 
-function ListLayout({ posts, lang }: { posts: Post[]; lang: string }) {
+function ListLayout({ posts, lang, requestDeleteAction }: { posts: Post[]; lang: string; requestDeleteAction?: DeleteAction }) {
   return (
     <ul className="flex flex-col gap-4">
       {posts.map((post) => (
-        <li key={post.slug}>
+        <li key={post.slug} className="relative">
           <Link href={`/${lang}/${post.section}/${post.slug}`} className="group block">
             <article className="border border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:shadow-sm transition-all bg-white">
               <div className="flex items-start justify-between gap-4">
@@ -132,17 +139,27 @@ function ListLayout({ posts, lang }: { posts: Post[]; lang: string }) {
               </div>
             </article>
           </Link>
+          {requestDeleteAction && (
+            <div className="absolute top-3 right-3 z-10">
+              <DeleteButton
+                postId={post.slug}
+                section={post.section}
+                title={post.title}
+                requestDeleteAction={requestDeleteAction}
+              />
+            </div>
+          )}
         </li>
       ))}
     </ul>
   )
 }
 
-function GridLayout({ posts, lang }: { posts: Post[]; lang: string }) {
+function GridLayout({ posts, lang, requestDeleteAction }: { posts: Post[]; lang: string; requestDeleteAction?: DeleteAction }) {
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-5">
       {posts.map((post) => (
-        <li key={post.slug}>
+        <li key={post.slug} className="relative">
           <Link href={`/${lang}/${post.section}/${post.slug}`} className="group block h-full">
             <article className="h-full border border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 hover:shadow-md transition-all bg-white flex flex-col">
               <div className="h-40 bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center shrink-0">
@@ -181,6 +198,16 @@ function GridLayout({ posts, lang }: { posts: Post[]; lang: string }) {
               </div>
             </article>
           </Link>
+          {requestDeleteAction && (
+            <div className="absolute top-3 right-3 z-10">
+              <DeleteButton
+                postId={post.slug}
+                section={post.section}
+                title={post.title}
+                requestDeleteAction={requestDeleteAction}
+              />
+            </div>
+          )}
         </li>
       ))}
     </ul>

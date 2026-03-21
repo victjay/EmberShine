@@ -6,6 +6,7 @@ import { getAllPosts } from '@/lib/content'
 import PostSearch from '@/components/PostSearch'
 import PageHeading from '@/components/PageHeading'
 import SectionControls from '@/components/SectionControls'
+import { requestDeletePost } from '@/app/private/blog/actions'
 
 interface Props {
   params: Promise<{ lang: string }>
@@ -50,7 +51,7 @@ export default async function BlogPage({ params }: Props) {
         <SectionControls newHref="/private/blog/new" />
       </div>
 
-      <PostSearch posts={posts} layout="list" />
+      <PostSearch posts={posts} layout="list" requestDeleteAction={requestDeletePost} />
     </main>
   )
 }
