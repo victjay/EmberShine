@@ -178,6 +178,83 @@ Phase 21, 22 상세 내용은 CLAUDE.md 기준.
 
 ---
 
+## Phase 23 — Workspace UX 개선
+`77b3882`
+
+### P23-2. DraftEditor 발행일 read-only 안내
+
+**파일:** `src/app/private/inbox/draft/[id]/DraftEditor.tsx`
+
+- 발행일 입력 필드 제거 (draft 단계에서는 저장 불필요)
+- 버튼 열에 `"발행일은 발행 시 자동 생성됩니다"` read-only 안내 텍스트 추가
+
+---
+
+### P23-3. 저장 피드백 4-state 버튼 + stage별 CTA 링크
+
+**파일:** `src/app/private/inbox/draft/[id]/DraftEditor.tsx`
+
+- `saveStatus: 'idle' | 'saved' | 'error'` 상태 추가 (`savedFlash: boolean` 대체)
+- `savedStage: string | null` — 저장 후 반환된 stage 추적
+- 버튼 라벨 4단계 전환:
+  - `isSaving` → `'저장 중...'` + 스피너
+  - `saved`    → `'저장됨 ✓'` + 초록 테두리
+  - `error`    → `'저장 실패 — 다시 시도'` + 빨간 테두리
+  - 기본       → `'임시저장'`
+- `clearSaveResult()` — 모든 필드 onChange 시 save 상태 초기화
+- `STAGE_CTA` 맵: 저장 성공 후 stage에 따라 탭 이동 링크 표시
+  - `ready`        → `'발행 준비 완료 탭으로 이동 →'`
+  - `categorizing` → `'카테고리 지정 필요 탭으로 이동 →'`
+
+---
+
+### P23-4. DraftListRow — NEW 칩 + stage 칩 (sessionStorage 추적)
+
+**파일:** `src/app/private/inbox/DraftListRow.tsx` (신규 클라이언트 컴포넌트)
+**파일:** `src/app/private/inbox/page.tsx`
+
+- `DraftList` 서버 컴포넌트 → 각 row를 `DraftListRow` 클라이언트 컴포넌트로 위임
+- sessionStorage 키: `seen_${id}_${draft_stage}`
+  - 미확인(처음 방문 또는 stage 변경) → `NEW` 칩 표시 (파란색)
+  - `useEffect`에서 즉시 `seen` 마킹 → 다음 방문부터 숨김
+- stage 칩: `categorizing` (노란색) / `ready` (초록색) — `writing`은 표시 안 함
+- 삭제 버튼 (Server Action `deleteDraft.bind()`) + `SubmitButton` 포함
+
+---
+
+### P23-5. DeploymentBanner — 수동 새로고침 버튼
+
+**파일:** `src/app/private/inbox/DeploymentBanner.tsx` (신규 클라이언트 컴포넌트)
+**파일:** `src/app/private/inbox/page.tsx`
+
+- 기존 인라인 배포 상태 배너를 클라이언트 컴포넌트로 분리
+- `building` 상태(또는 DB 레코드 미확인)일 때 `'새로고침'` 버튼 표시
+- 버튼 클릭 → `router.refresh()` (Next.js 서버 컴포넌트 재요청, 전체 페이지 리로드 없음)
+- 폴링/TTL 없음 — 수동 새로고침만 지원
+
+---
+
+### P23-Hotfix. media_group secondary 사진 early-exit
+
+**파일:** `src/app/api/telegram/[secret]/route.ts`
+
+- `media_group_id` 있고 `textContent`(caption/text) 없는 경우 → `NextResponse.json({ ok: true })` early return
+- 앨범 전송 시 caption 없는 secondary 사진들이 개별 draft로 생성되던 문제 방지
+- 적용 위치: `photo_post` / `pending` / `default` case 진입 직후
+
+---
+
+### P23-6. media_group 버퍼 아키텍처 설계 문서
+
+**파일:** `docs/P23-6_media_group_buffer_design.md` (신규)
+
+- 구현 보류 (선행 조건: pg_cron 가용성 확인, quiet_period 실측 필요)
+- 제안 스키마: `media_group_buffer` 테이블 (media_group_id 기준 UPSERT + processed 플래그)
+- Flush 트리거 2가지 옵션: pg_cron (Supabase Pro) / Vercel Cron Job
+- quiet_period 실측 절차 포함 (추천 3~10초, 결정 전 측정 필요)
+
+---
+
 ## Phase 21 UX 버그 수정 (Fix-1~7, Fix-9)
 `38aa861` / `87a4ada`
 
