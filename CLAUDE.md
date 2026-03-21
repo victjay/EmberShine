@@ -111,6 +111,12 @@ Never push if:
 - If example code conflicts with actual code, NEVER implement the example blindly.
   First summarize the differences, then propose an adjusted implementation based on the real codebase.
 - After each step, run `npx tsc --noEmit`, report the result, and do not proceed to the next step until confirmed.
+- NEVER introduce a new helper/abstraction until duplication is confirmed in the actual code.
+  Introducing new abstractions first during a hotfix is prohibited.
+- NEVER implement example values or pseudo-code field names as defaults or real fields.
+  If unverified, report and hold before implementing.
+- NEVER hardcode time values, polling intervals, or quiet periods arbitrarily (e.g. TTL, retry delay, suppress window).
+  Always confirm the value before use.
 
 ## Content Architecture
 
@@ -142,7 +148,7 @@ Never push if:
 ### Private content (diary, Workspace): Supabase only — zero Git involvement
 ※ inbox는 Phase 21부터 Workspace로 통합됨
 
-### Content State Model (Phase 21~)
+### Content State Model (Phase 21~22)
 
 #### 최상위 상태
 - `draft`     → Supabase only, 비공개
@@ -177,7 +183,7 @@ Never push if:
         → 선택 안 하면 draft 유지 (draft_stage=categorizing)
 ```
 
-## Workspace (Phase 21~)
+## Workspace (Phase 21~22)
 
 ### 탭 구조
 ```
@@ -397,7 +403,7 @@ export async function myAction(formData: FormData) {
 // redirect() is ALWAYS outside try/catch
 ```
 
-## Button State Management (Phase 21~)
+## Button State Management (Phase 21~22)
 
 모든 비동기 액션 버튼 공통 적용:
 - 클릭 전: 활성
@@ -420,7 +426,7 @@ export async function myAction(formData: FormData) {
 - `translate.ts`: MUST have `import 'server-only'` at top
 - Translation NEVER throws — always returns `{ success, data/error }`
 
-## AI Category Recommendation (Phase 21~)
+## AI Category Recommendation (Phase 21~22)
 
 ### 트리거
 - `draft_stage=categorizing` 탭 진입 시 백그라운드 자동 분석
@@ -444,7 +450,7 @@ export async function myAction(formData: FormData) {
 - 선택 항목이 신규 제안일 때 확인 모달 표시
 - 기존 카테고리와 유사도 높으면 경고 메시지 포함
 
-## Category Management (Phase 21~)
+## Category Management (Phase 21~22)
 
 ### 범위
 - blog / stories / portfolio 섹션별 독립 관리
@@ -480,7 +486,7 @@ export async function myAction(formData: FormData) {
 - Trigger: `schedule: cron '*/15 * * * *'`
 - Marks `building` older than 15 minutes as `error`
 
-### thumbnail-automation.yml (Phase 22)
+### thumbnail-automation.yml (Phase 22 — current: Phase 23)
 - Trigger: `on: push, branches: [main], paths: ['content/**/*.md']`
 - `if: github.actor != 'github-actions[bot]'`
 - `concurrency: cancel-in-progress: true`
