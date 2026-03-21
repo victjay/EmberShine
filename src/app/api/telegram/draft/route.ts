@@ -5,7 +5,6 @@ import { createServiceClient } from '@/lib/supabase/server'
 import { generateDraft } from '@/lib/ai/draft'
 import { sendTelegramMessage } from '@/lib/telegram/sender'
 import { sendDraftPreview } from '@/lib/telegram/preview'
-import { safeSlug } from '@/lib/content/slug-utils'
 import { computeDraftStage } from '@/lib/drafts/computeDraftStage'
 
 interface DraftRouteBody {
@@ -61,16 +60,14 @@ export async function POST(request: NextRequest) {
   }
 
   const derivedSection = deriveSection(tags, section)
-  const date       = new Date().toISOString().slice(0, 10)
-  const slug       = `${date}-${safeSlug(draft.titles[0])}`
-  const githubPath = `content/${derivedSection}/${slug}.md`
 
   const { error: insertError } = await supabase.from('draft_posts').insert({
     inbox_id:      inboxId,
     section:       derivedSection,
     title:         draft.titles[0],
     body_markdown: draft.body_markdown,
-    github_path:   githubPath,
+    // github_path는 publish 시 resolvePublicSlug로 확정 — 여기서 미리 설정하지 않음
+    github_path:   null,
     frontmatter: {
       ai_titles:           draft.titles,
       ai_summary:          draft.summary,

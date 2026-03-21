@@ -14,6 +14,7 @@ import { downloadTelegramFile } from '@/lib/telegram/files'
 import { generateKey, uploadToR2 } from '@/lib/r2/upload'
 import { buildMarkdown } from '@/lib/content/builder'
 import { generateSNSDraft } from '@/lib/ai/sns-draft'
+import { resolvePublicSlug } from '@/lib/content/resolvePublicSlug'
 
 interface TelegramPhotoSize {
   file_id: string
@@ -126,12 +127,12 @@ async function processApproval(
   const [inboxRes, draftRes] = await Promise.all([
     supabase
       .from('inbox_messages')
-      .select('id, raw_payload, text_content, parsed_tags, target_section, telegram_date')
+      .select('id, raw_payload, text_content, parsed_tags, target_section, telegram_date, created_at')
       .eq('id', inboxId)
       .single(),
     supabase
       .from('draft_posts')
-      .select('id, section, title, body_markdown, frontmatter')
+      .select('id, section, title, body_markdown, frontmatter, created_at')
       .eq('inbox_id', inboxId)
       .order('created_at', { ascending: false })
       .limit(1)
@@ -181,7 +182,11 @@ async function processApproval(
   const aiTags        = (fm.ai_tags             as string[]) ?? []
   const section       = (draft?.section as 'blog' | 'stories' | 'portfolio') ?? 'blog'
   const description   = metaDesc || summary || null
-  const slug          = `${new Date().toISOString().slice(0, 10)}-${inboxId.slice(0, 8)}`
+  // slug 정책: draft가 있으면 draft seed, 없으면 inbox seed (모두 resolvePublicSlug 사용)
+  const slugSeed = draft
+    ? { id: draft.id, created_at: draft.created_at, frontmatter: draft.frontmatter }
+    : { id: inboxId, created_at: (inbox.created_at as string), frontmatter: null }
+  const slug = resolvePublicSlug(slugSeed)
   const mergedTags    = [...new Set([...(inbox.parsed_tags ?? []), ...aiTags])]
 
   const fullBody = imageUrl ? `![${title}](${imageUrl})\n\n${body}` : body

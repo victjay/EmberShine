@@ -429,7 +429,17 @@ export async function applyAndPublish(
   }
 
   const today  = draft.created_at.split('T')[0]   // UTC 발행일 (draft 생성 시각 기준)
-  const postId = resolvePublicSlug(draft)
+  let postId = resolvePublicSlug(draft)
+
+  // slug 충돌 방지: 동일 파일명이 이미 존재하면 UUID 2자리 더 사용
+  // custom_slug 충돌은 사용자 오류이므로 UUID 기반에만 적용
+  if (!fm.custom_slug) {
+    const conflictPath = `content/${draft.section}/${postId}.md`
+    const hasConflict  = await checkFileExists(conflictPath)
+    if (hasConflict) {
+      postId = `${today}-${draft.id.slice(0, 10)}`
+    }
+  }
 
   // EN 번역 시도 (실패해도 KO만 발행)
   let enContent: string | null = null

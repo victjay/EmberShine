@@ -102,6 +102,14 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
     .eq('status', 'pending')
     .order('created_at', { ascending: false })
 
+  // 발행 완료된 draft와 연결된 inbox_id 수집 (메시지 탭 자동 필터링용)
+  const { data: publishedDrafts } = await supabase
+    .from('draft_posts')
+    .select('inbox_id')
+    .eq('status', 'published')
+    .not('inbox_id', 'is', null)
+  const publishedInboxIds = new Set((publishedDrafts ?? []).map((d) => d.inbox_id as string))
+
   // inbox_messages
   const { data: messages } = await supabase
     .from('inbox_messages')
@@ -109,7 +117,10 @@ export default async function WorkspacePage({ searchParams }: { searchParams: Se
     .order('telegram_date', { ascending: false })
     .limit(50)
 
-  const pendingMessages = (messages ?? []).filter((m) => m.status === 'pending')
+  // published draft가 연결된 메시지는 제외 (workspace 발행 완료 후 자동 필터링)
+  const pendingMessages = (messages ?? []).filter(
+    (m) => m.status === 'pending' && !publishedInboxIds.has(m.id)
+  )
 
   // system_notifications
   const { data: notifications } = await adminSupabase

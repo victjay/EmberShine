@@ -44,9 +44,10 @@ function SectionBlock({
   categories: Category[]
   countMap: Record<string, number>
 }) {
-  const [newName,   setNewName]   = useState('')
-  const [addError,  setAddError]  = useState<string | null>(null)
-  const [isAdding,  startAdd]     = useTransition()
+  const [newName,    setNewName]    = useState('')
+  const [addError,   setAddError]   = useState<string | null>(null)
+  const [addSuccess, setAddSuccess] = useState(false)
+  const [isAdding,   startAdd]      = useTransition()
 
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null)
   const [deleteError,  setDeleteError]  = useState<string | null>(null)
@@ -54,14 +55,17 @@ function SectionBlock({
 
   function handleAdd(e: React.FormEvent) {
     e.preventDefault()
-    if (!newName.trim()) return
+    if (!newName.trim() || isAdding) return  // 엔터 중복 제출 방지
     setAddError(null)
+    setAddSuccess(false)
     startAdd(async () => {
       const result = await addCategory(section, newName)
       if (result?.error) {
         setAddError(result.error)
       } else {
         setNewName('')
+        setAddSuccess(true)
+        setTimeout(() => setAddSuccess(false), 2000)
       }
     })
   }
@@ -100,11 +104,18 @@ function SectionBlock({
           <button
             type="submit"
             disabled={isAdding || !newName.trim()}
-            className="px-4 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium bg-slate-900 text-white rounded-lg hover:bg-slate-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
           >
+            {isAdding && (
+              <svg className="animate-spin h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            )}
             {isAdding ? '추가 중…' : '추가'}
           </button>
         </form>
+        {addSuccess && <p className="text-sm text-emerald-600 mb-3">카테고리가 추가되었습니다.</p>}
         {addError && <p className="text-sm text-red-500 mb-3">{addError}</p>}
 
         {/* 카테고리 목록 */}
