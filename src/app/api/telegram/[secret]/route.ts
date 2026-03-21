@@ -237,6 +237,9 @@ export async function POST(
     case 'photo_post':
     case 'pending':
     default: {
+      // media_group secondary photo: no caption/text — skip solo draft creation
+      if (message.media_group_id && !textContent) return NextResponse.json({ ok: true })
+
       await sendTelegramMessage('메시지를 받았습니다. AI 초안을 생성 중입니다...')
       // Trigger AI pipeline in its own function invocation
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
