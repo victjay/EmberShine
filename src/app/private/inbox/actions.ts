@@ -8,6 +8,7 @@ import { redirect } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { checkFileExists, getFileContent, pushMultipleToGitHub, FileEntry } from '@/lib/github/push'
 import { safeSlug, ensureUniquePostId } from '@/lib/content/slug-utils'
+import { resolvePublicSlug } from '@/lib/drafts/resolvePublicSlug'
 import { buildMarkdown } from '@/lib/content/builder'
 import { buildEnMarkdown } from '@/lib/content/en-file'
 import { translatePost } from '@/lib/ai/translate'
@@ -406,7 +407,7 @@ export async function applyAndPublish(
 
   const { data: draft } = await supabase
     .from('draft_posts')
-    .select('id, section, title, body_markdown, frontmatter')
+    .select('id, section, title, body_markdown, frontmatter, created_at')
     .eq('id', draftId)
     .eq('status', 'draft')
     .single()
@@ -427,14 +428,8 @@ export async function applyAndPublish(
     }
   }
 
-  const today = new Date().toISOString().split('T')[0]
-  const slug  = safeSlug(draft.title)
-  let postId: string
-  try {
-    postId = await ensureUniquePostId(draft.section, `${today}-${slug}`)
-  } catch {
-    return { error: '포스트 ID 생성 실패' }
-  }
+  const today  = draft.created_at.split('T')[0]   // UTC 발행일 (draft 생성 시각 기준)
+  const postId = resolvePublicSlug(draft)
 
   // EN 번역 시도 (실패해도 KO만 발행)
   let enContent: string | null = null

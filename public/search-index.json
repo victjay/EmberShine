@@ -1,457 +1,122 @@
 [
   {
-    "slug": "2026-03-18-19088019.en",
+    "slug": "2026-03-21-224e043d.en",
     "section": "blog",
-    "title": "Harang's 'Special' Report Card: A Story Filled with Teacher Sonia's Heart",
-    "date": "2026-03-18",
-    "description": "Harang's special 'report card' from Teacher Sonia contained not numbers, but the child's shining moments. Discover a warm growth record that found value beyond mere scores at Ambershine.",
+    "title": "A Seafood Feast of a Lifetime in Europe: Memories of March 21",
+    "date": "2026-03-21",
+    "description": "EmberShine's unforgettable seafood party experience in Europe! Discover a fantastic culinary journey with fresh sea dishes on March 21, through vivid photos and stories.",
     "tags": [
-      "하랑이",
-      "소니아선생님",
-      "특별한성적표",
-      "아이의성장",
-      "따뜻한이야기",
-      "육아일기",
+      "유럽여행",
+      "해산물파티",
+      "유럽맛집",
+      "미식여행",
+      "Shine의하루",
+      "여행일기",
+      "해외음식"
+    ],
+    "excerpt": "Do you remember a special night in Europe on March 21? The story of that day is finally revealed on the EmberShine blog! An cozy restaurant accidentally discovered in an unfamiliar European city, and "
+  },
+  {
+    "slug": "2026-03-21-224e043d",
+    "section": "blog",
+    "title": "유럽에서 만난 인생 해산물 파티: 3월 21일의 추억",
+    "date": "2026-03-21",
+    "description": "EmberShine이 유럽에서 겪은 잊지 못할 해산물 파티! 3월 21일, 신선한 바다 요리와 함께한 환상적인 미식 경험을 생생한 사진과 이야기로 만나보세요.",
+    "tags": [
+      "유럽여행",
+      "해산물파티",
+      "유럽맛집",
+      "미식여행",
+      "Shine의하루",
+      "여행일기",
+      "해외음식"
+    ],
+    "excerpt": "3월 21일, 유럽에서의 특별한 밤을 기억하시나요? EmberShine 블로그에 그날의 이야기가 드디어 공개됩니다! 낯선 유럽의 도시에서 우연히 발견한 아늑한 식당, 그리고 그곳에서 펼쳐진 상상 이상의 해산물 파티는 아직도 잊을 수 없는 추억으로 남아있습니다. 신선한 대게와 통통한 새우, 짭짤한 홍합찜까지. 바다 내음 가득한 요리들이 테이블을 가득 채웠고,"
+  },
+  {
+    "slug": "2026-03-20-love-is.en",
+    "section": "stories",
+    "title": "Love is...",
+    "date": "2026-03-20",
+    "description": "",
+    "tags": [],
+    "excerpt": "In a foreign country, children aged 4-8 were asked, \"What do you think love is?\" But their answers about love were much deeper and broader than what adults define. \"Love is when a girl puts on perfume"
+  },
+  {
+    "slug": "2026-03-20-love-is",
+    "section": "stories",
+    "title": "Love is...",
+    "date": "2026-03-20",
+    "description": "",
+    "tags": [],
+    "excerpt": "외국에서 4~8살의 아이들에게 물었답니다  \"사랑이 뭐라고 생각하니?\" 라구요\r \r 그런데 어른들이 정의하고 있는 사랑에 대한 답보다 훨씬 더 깊고 넓었답니다\r \r \"Love is when a girl puts on perfume and a boy puts on shaving cologneg and they go out and smell each other"
+  },
+  {
+    "slug": "2026-03-19-4f0faa5b.en",
+    "section": "blog",
+    "title": "An Unexpected Taste in Luxembourg: Vietnamese Spring Rolls!",
+    "date": "2026-03-19",
+    "description": "While traveling in Luxembourg, I stumbled upon a fantastic Vietnamese spring roll spot! Discover the surprising taste and freshness of Vietnamese cuisine found in the heart of Europe. Experience the familiar joy this culinary find brought me in an unfamiliar land, here on the EmberShine blog.",
+    "tags": [
+      "룩셈부르크",
+      "월남쌈",
+      "베트남음식",
+      "유럽여행",
+      "해외맛집",
+      "EmberShine여행기",
+      "미식탐험"
+    ],
+    "excerpt": "Today, I'd like to talk about a special experience I had in Luxembourg. In the heart of beautiful Europe, don't you sometimes suddenly miss the taste of home? I certainly did. After trying European di"
+  },
+  {
+    "slug": "2026-03-19-4f0faa5b",
+    "section": "blog",
+    "title": "룩셈부르크에서 만난 뜻밖의 맛, 월남쌈!",
+    "date": "2026-03-19",
+    "description": "룩셈부르크 여행 중 우연히 발견한 월남쌈 맛집! 유럽 한복판에서 만난 베트남 음식의 놀라운 맛과 신선함을 소개합니다. 낯선 여행지에서 익숙한 행복을 선사했던 미식 경험을 EmberShine 블로그에서 만나보세요.",
+    "tags": [
+      "룩셈부르크",
+      "월남쌈",
+      "베트남음식",
+      "유럽여행",
+      "해외맛집",
+      "EmberShine여행기",
+      "미식탐험"
+    ],
+    "excerpt": "오늘은 룩셈부르크에서의 특별한 경험을 이야기해볼까 해요. 아름다운 유럽의 한복판에서, 문득 한국의 맛이 그리워질 때가 있잖아요? 저도 그랬습니다. 며칠간 유럽 음식들을 맛보다가 갑자기 신선한 채소와 깔끔한 소스가 당기는 거예요. 그래서 무작정 '월남쌈'을 검색했죠. 놀랍게도, 룩셈부르크 시내 한편에 아담하지만 따뜻한 분위기의 베트남 식당을 찾았어요! 문을 "
+  },
+  {
+    "slug": "2026-03-19-fc1666e1.en",
+    "section": "blog",
+    "title": "Luxembourg Parking, Don't Let Your Guard Down!",
+    "date": "2026-03-19",
+    "description": "Must-read if you're looking for rental car parking tips when traveling in Luxembourg! EmberShine tells you how to avoid fines and park smartly amidst strict parking regulations.",
+    "tags": [
+      "룩셈부르크",
+      "유럽여행",
+      "주차팁",
+      "렌터카여행",
+      "여행정보",
+      "벌금예방",
       "EmberShine"
     ],
-    "excerpt": "One day, a message arrived from Teacher Sonia. Along with the words 'a report card that doesn't feel like Harang's report card,' a photo was attached. My heart pounded as I opened it, wondering what i"
+    "excerpt": "Hello, this is Shine from EmberShine blog! Today, I'm going to share a very important tip among Luxembourg travel hacks. It's about 'checking your parking ticket'. Luxembourg is a small country in Eur"
   },
   {
-    "slug": "2026-03-18-19088019",
+    "slug": "2026-03-19-fc1666e1",
     "section": "blog",
-    "title": "하랑이의 '특별한' 성적표: 소니아 선생님의 마음 담긴 이야기",
-    "date": "2026-03-18",
-    "description": "하랑이 선생님 소니아에게서 받은 특별한 '성적표'는 숫자가 아닌 아이의 빛나는 모습들을 담고 있었습니다. 점수 그 이상의 가치를 발견한 따뜻한 성장 기록을 엠버샤인에서 만나보세요.",
+    "title": "룩셈부르크 주차, 방심은 금물!",
+    "date": "2026-03-19",
+    "description": "룩셈부르크 여행 시 렌터카 주차 팁을 찾고 있다면 필독! 엄격한 주차 규정 속에서 벌금을 피하고 스마트하게 주차하는 방법을 EmberShine이 알려드립니다.",
     "tags": [
-      "하랑이",
-      "소니아선생님",
-      "특별한성적표",
-      "아이의성장",
-      "따뜻한이야기",
-      "육아일기",
+      "룩셈부르크",
+      "유럽여행",
+      "주차팁",
+      "렌터카여행",
+      "여행정보",
+      "벌금예방",
       "EmberShine"
     ],
-    "excerpt": "어느 날, 소니아 선생님께 메시지가 도착했어요. '하랑이 성적표같지 않은 성적'이라는 말씀과 함께 사진 한 장이 첨부되어 있었죠. 무슨 내용일까 두근거리는 마음으로 열어보니, 제가 상상했던 일반적인 성적표와는 전혀 다른 따뜻한 이야기가 펼쳐져 있었습니다. 선생님은 하랑이가 수업 시간에 보여준 작은 배려, 친구들과의 즐거운 교류, 그리고 매 순간 호기심 가득"
-  },
-  {
-    "slug": "2026-03-18-3-18-2026-3-42-test.en",
-    "section": "blog",
-    "title": "3/18/2026 3:42 test",
-    "date": "2026-03-18",
-    "description": "3/18/2026 3:42 test",
-    "tags": [],
-    "excerpt": "3/18/2026 3:42 test"
-  },
-  {
-    "slug": "2026-03-18-3-18-2026-3-42-test",
-    "section": "blog",
-    "title": "3/18/2026 3:42 test",
-    "date": "2026-03-18",
-    "description": "3/18/2026 3:42 test",
-    "tags": [],
-    "excerpt": "3/18/2026 3:42 test"
-  },
-  {
-    "slug": "2026-03-18-3-18-26-4-00-안녕하세요.en",
-    "section": "blog",
-    "title": "3/18/26 4:00 Hello?",
-    "date": "2026-03-18",
-    "description": "3/18/26 4:00 Hello?",
-    "tags": [],
-    "excerpt": "3/18/26 4:00 Hello? This is a blog test."
-  },
-  {
-    "slug": "2026-03-18-3-18-26-4-00-안녕하세요",
-    "section": "blog",
-    "title": "3/18/26 4:00 안녕하세요?",
-    "date": "2026-03-18",
-    "description": "3/18/26 4:00 안녕하세요?",
-    "tags": [],
-    "excerpt": "3/18/26 4:00 안녕하세요? 블로그 테스트 중입니다."
-  },
-  {
-    "slug": "2026-03-18-3-18-26-4-03.en",
-    "section": "blog",
-    "title": "3/18/26 4:03",
-    "date": "2026-03-18",
-    "description": "3/18/26 4:03",
-    "tags": [],
-    "excerpt": "3/18/26 4:03"
-  },
-  {
-    "slug": "2026-03-18-3-18-26-4-03",
-    "section": "blog",
-    "title": "3/18/26 4:03",
-    "date": "2026-03-18",
-    "description": "3/18/26 4:03",
-    "tags": [],
-    "excerpt": "3/18/26 4:03"
-  },
-  {
-    "slug": "2026-03-18-567.en",
-    "section": "blog",
-    "title": "567",
-    "date": "2026-03-18",
-    "description": "567",
-    "tags": [],
-    "excerpt": "567"
-  },
-  {
-    "slug": "2026-03-18-567",
-    "section": "blog",
-    "title": "567",
-    "date": "2026-03-18",
-    "description": "567",
-    "tags": [],
-    "excerpt": "567"
-  },
-  {
-    "slug": "2026-03-18-83c2cf0c",
-    "section": "blog",
-    "title": "겨울을 지켜줄 보일러의 극적 부활!",
-    "date": "2026-03-18",
-    "description": "고장날까 걱정했던 보일러가 기적처럼 다시 돌아왔습니다. 갑작스러운 보일러의 귀환에 안도하며 따뜻한 겨울을 꿈꾸는 EmberShine의 일상 이야기.",
-    "tags": [
-      "보일러",
-      "겨울",
-      "난방",
-      "일상",
-      "따뜻함",
-      "집스타그램",
-      "고장"
-    ],
-    "excerpt": "오늘 아침, 갑자기 쌩쌩 돌아가는 보일러 소리에 깜짝 놀랐습니다. 며칠 전부터 미적지근한 온기가 불안하게 느껴지더니, 혹시나 하는 마음에 노심초사하고 있었거든요. 매서운 겨울 바람이 불어오기 시작하면서 보일러는 정말이지 우리 집의 생명줄과 다름없었는데, 녀석이 언제 멈출까 봐 조마조마했습니다. 그런데 거짓말처럼, 아무것도 하지 않았는데 스스로 다시 힘찬 심"
-  },
-  {
-    "slug": "2026-03-18-tgtg.en",
-    "section": "blog",
-    "title": "tgtg",
-    "date": "2026-03-18",
-    "description": "tgtg",
-    "tags": [],
-    "excerpt": "tgtg"
-  },
-  {
-    "slug": "2026-03-18-tgtg",
-    "section": "blog",
-    "title": "tgtg",
-    "date": "2026-03-18",
-    "description": "tgtg",
-    "tags": [],
-    "excerpt": "tgtg"
-  },
-  {
-    "slug": "2026-03-18-tt.en",
-    "section": "blog",
-    "title": "tt",
-    "date": "2026-03-18",
-    "description": "tt",
-    "tags": [],
-    "excerpt": "tt"
-  },
-  {
-    "slug": "2026-03-18-tt",
-    "section": "blog",
-    "title": "tt",
-    "date": "2026-03-18",
-    "description": "tt",
-    "tags": [],
-    "excerpt": "tt"
-  },
-  {
-    "slug": "2026-03-17-353.en",
-    "section": "blog",
-    "title": "353",
-    "date": "2026-03-17",
-    "description": "353",
-    "tags": [],
-    "excerpt": "353 339"
-  },
-  {
-    "slug": "2026-03-17-353",
-    "section": "blog",
-    "title": "353",
-    "date": "2026-03-17",
-    "description": "353",
-    "tags": [],
-    "excerpt": "353\r 339"
-  },
-  {
-    "slug": "2026-03-17-5cd27471",
-    "section": "blog",
-    "title": "요즘 AI, 어디까지 왔니? (feat. 나의 생각)",
-    "date": "2026-03-17",
-    "description": "최신 AI 트렌드에 대한 EmberShine의 개인적인 시선. 빠르게 변화하는 AI 세상 속에서 우리가 주목해야 할 점들을 함께 이야기해봅니다.",
-    "tags": [
-      "AI",
-      "인공지능",
-      "트렌드",
-      "기술",
-      "미래",
-      "개인적인생각",
-      "EmberShine"
-    ],
-    "excerpt": "안녕, 에브리원! 오늘은 샤인이가 텔레그램으로 툭 던져준 'Ai 트렌드'라는 키워드 덕분에 하루 종일 생각에 잠겼어요. 요즘 정말 AI 얘기가 아닌 날이 없죠? 카페에서 친구들과 수다를 떨 때도, 출근길 팟캐스트를 들을 때도, 심지어 주말에 영화를 볼 때도 AI는 늘 우리 곁에 있는 것 같아요. 특히 최근 몇 년 사이에 AI 기술이 발전하는 속도를 보면 정"
-  },
-  {
-    "slug": "2026-03-17-asdf.en",
-    "section": "blog",
-    "title": "asdf",
-    "date": "2026-03-17",
-    "description": "asdf",
-    "tags": [
-      "asdf"
-    ],
-    "excerpt": "asdf"
-  },
-  {
-    "slug": "2026-03-17-asdf",
-    "section": "blog",
-    "title": "asdf",
-    "date": "2026-03-17",
-    "description": "asdf",
-    "tags": [
-      "asdf"
-    ],
-    "excerpt": "asdf"
-  },
-  {
-    "slug": "2026-03-17-cfe14619",
-    "section": "blog",
-    "title": "어? 보일러가 왜 혼자 켜졌지?",
-    "date": "2026-03-17",
-    "description": "갑자기 작동한 보일러, 그 이유가 궁금하신가요? EmberShine이 경험한 보일러 미스터리를 파헤치고, 예상치 못한 보일러 작동 원인과 간단한 점검 팁을 공유합니다. 우리 집 보일러, 문제 없을까요?",
-    "tags": [
-      "보일러",
-      "난방",
-      "생활팁",
-      "홈케어",
-      "주택관리",
-      "보일러고장",
-      "EmberShine일기"
-    ],
-    "excerpt": "여러분, 안녕하세요! EmberShine입니다. 평화로운 주말 저녁, 거실에 앉아있는데 갑자기 '윙~'하는 소리와 함께 보일러가 돌아가는 거예요. 어? 지금 보일러 켤 때가 아닌데? 너무 깜짝 놀라서 얼른 보일러 컨트롤러를 확인하고 혹시 뭔가 이상한 점이 있나 살펴보았죠. (물론 사진도 찍어뒀답니다!) 갑자기 보일러가 작동하는 이유, 뭘까요? 저는 순간 '"
-  },
-  {
-    "slug": "2026-03-17-test3-2",
-    "section": "blog",
-    "title": "test3",
-    "date": "2026-03-17",
-    "description": "test3",
-    "tags": [
-      "test3"
-    ],
-    "excerpt": "test3"
-  },
-  {
-    "slug": "2026-03-17-test3",
-    "section": "blog",
-    "title": "test3",
-    "date": "2026-03-17",
-    "description": "test3",
-    "tags": [
-      "test3"
-    ],
-    "excerpt": "test3"
-  },
-  {
-    "slug": "2026-03-17-나는테스트중이다.en",
-    "section": "blog",
-    "title": "I am testing",
-    "date": "2026-03-17",
-    "description": "I am testing",
-    "tags": [],
-    "excerpt": "I am testing the blog"
-  },
-  {
-    "slug": "2026-03-17-나는테스트중이다",
-    "section": "blog",
-    "title": "나는테스트중이다",
-    "date": "2026-03-17",
-    "description": "나는테스트중이다",
-    "tags": [],
-    "excerpt": "나는블로그테스트중이다"
-  },
-  {
-    "slug": "2026-03-17-나는테스트중이다2",
-    "section": "blog",
-    "title": "나는테스트중이다2",
-    "date": "2026-03-17",
-    "description": "나는테스트중이다2",
-    "tags": [],
-    "excerpt": "나는테스트중이다2"
-  },
-  {
-    "slug": "2026-03-17-삶의-작은-빛-조각",
-    "section": "blog",
-    "title": "차가운 침묵: 보일러 고장으로 멈춘 따뜻함",
-    "date": "2026-03-17",
-    "description": "EmberShine의 갑작스러운 보일러 고장 이야기. 차가운 집에서 따뜻함의 소중함을 깨달은 하루와 수리를 기다리는 솔직한 일상을 만나보세요.",
-    "tags": [
-      "보일러",
-      "고장",
-      "난방비상",
-      "일상이야기",
-      "겨울나기",
-      "생활팁",
-      "EmberShine"
-    ],
-    "excerpt": "여러분, 안녕하세요. EmberShine입니다.\r \r 수정동작완\r \r 따뜻하고 포근해야 할 집이 갑자기 얼음장처럼 차가워진다면 어떤 기분일까요? 어제 제가 딱 그 상황을 겪었습니다. 평화로운 주말을 맞이하려던 순간, '뚝' 소리와 함께 보일러가 멈춰 버렸지 뭐예요. 처음에는 대수롭지 않게 생각했어요. 전원 버튼을 몇 번 눌러보고, 보일러를 껐다가 다시 켜봐"
-  },
-  {
-    "slug": "2026-03-17-테스트해봅시다-번역되는지.en",
-    "section": "blog",
-    "title": "Let's test if it translates",
-    "date": "2026-03-17",
-    "description": "Let's test if it translates",
-    "tags": [],
-    "excerpt": "Let's test if it really translates"
-  },
-  {
-    "slug": "2026-03-17-테스트해봅시다-번역되는지",
-    "section": "blog",
-    "title": "테스트해봅시다 번역되는지",
-    "date": "2026-03-17",
-    "description": "테스트해봅시다 번역되는지",
-    "tags": [],
-    "excerpt": "테스트해봅시다 번역되는지 진짜로"
-  },
-  {
-    "slug": "2026-03-17-스토리-번역될까-2.en",
-    "section": "stories",
-    "title": "Will the story be translated?",
-    "date": "2026-03-17",
-    "description": "Will the story be translated?",
-    "tags": [],
-    "excerpt": "Will the story be translated?"
-  },
-  {
-    "slug": "2026-03-17-스토리-번역될까-2",
-    "section": "stories",
-    "title": "스토리 번역될까?",
-    "date": "2026-03-17",
-    "description": "스토리 번역될까?",
-    "tags": [],
-    "excerpt": "스토리 번역될까?"
-  },
-  {
-    "slug": "2026-03-17-스토리-번역될까.en",
-    "section": "stories",
-    "title": "Will the story be translated?",
-    "date": "2026-03-17",
-    "description": "Will the story be translated?",
-    "tags": [],
-    "excerpt": "Will the story be translated?"
-  },
-  {
-    "slug": "2026-03-17-스토리-번역될까",
-    "section": "stories",
-    "title": "스토리 번역될까?",
-    "date": "2026-03-17",
-    "description": "스토리 번역될까?",
-    "tags": [],
-    "excerpt": "스토리 번역될까?"
-  },
-  {
-    "slug": "2026-03-16-test-2",
-    "section": "blog",
-    "title": "test",
-    "date": "2026-03-16",
-    "description": "test",
-    "tags": [
-      "test"
-    ],
-    "excerpt": "test"
-  },
-  {
-    "slug": "2026-03-16-test",
-    "section": "blog",
-    "title": "test",
-    "date": "2026-03-16",
-    "description": "test",
-    "tags": [
-      "test"
-    ],
-    "excerpt": "test"
-  },
-  {
-    "slug": "2026-03-16-test-story",
-    "section": "stories",
-    "title": "test story",
-    "date": "2026-03-16",
-    "description": "test",
-    "tags": [
-      "testt"
-    ],
-    "excerpt": "testt\r sdfgsdfg"
-  },
-  {
-    "slug": "2026-03-12-b06118dc",
-    "section": "blog",
-    "title": "내 차, 나의 작은 세상",
-    "date": "2026-03-12",
-    "description": "자동차는 단순한 이동 수단 그 이상! 나만의 작은 세상이자 자유, 추억을 선사하는 존재로서 자동차가 가진 특별한 의미와 감성을 공유합니다.",
-    "tags": [
-      "일상",
-      "생각",
-      "자동차",
-      "드라이브",
-      "나만의공간",
-      "추억",
-      "EmberShine"
-    ],
-    "excerpt": "아침 출근길, 좋아하는 음악을 크게 틀어놓고 세상과 잠시 단절되는 그 순간은 저만의 소중한 시간이죠. 때로는 아무 생각 없이 훌쩍 떠나고 싶을 때, 시동을 걸고 목적지 없이 달리는 것만으로도 위로를 얻곤 합니다.\r \r 운전석에 앉아 핸들을 잡으면, 그 공간은 오롯이 저만의 것이 됩니다. 누구의 시선도 신경 쓸 필요 없이, 제 마음 가는 대로 노래를 부르거나"
-  },
-  {
-    "slug": "getting-started-with-nextjs",
-    "section": "blog",
-    "title": "Getting Started with Next.js 16",
-    "date": "2026-03-10",
-    "description": "A practical guide to setting up a modern Next.js project with TypeScript, Tailwind, and Supabase.",
-    "tags": [
-      "Next.js",
-      "TypeScript",
-      "Supabase"
-    ],
-    "excerpt": "Next.js 16 brings significant improvements to the App Router. Here's how to get started. Project Setup ```bash npx create-next-app@latest my-app --typescript --tailwind --app cd my-app npm install @su"
-  },
-  {
-    "slug": "supabase-rls-guide",
-    "section": "blog",
-    "title": "Supabase RLS: Row-Level Security in Practice",
-    "date": "2026-03-05",
-    "description": "How to lock down your Supabase tables so users can only access their own data.",
-    "tags": [
-      "Supabase",
-      "Security",
-      "PostgreSQL"
-    ],
-    "excerpt": "Row-Level Security (RLS) is Postgres's built-in mechanism for per-row access control. Enable RLS Always enable RLS on every table. Without it, anyone with the anon key can read all rows. ```sql ALTER "
-  },
-  {
-    "slug": "tokyo-march-2026",
-    "section": "stories",
-    "title": "Tokyo in Early Spring",
-    "date": "2026-03-01",
-    "description": "Three days wandering Shimokitazawa, Yanaka, and the backstreets of Shinjuku before the cherry blossoms.",
-    "tags": [
-      "travel",
-      "Japan",
-      "street"
-    ],
-    "excerpt": "Arrived late into Haneda. The city was cold and quiet in a way that only exists between winter and spring — that specific grey-blue light just before something blooms. Shimokitazawa The vintage shops "
-  },
-  {
-    "slug": "berlin-weekend",
-    "section": "stories",
-    "title": "48 Hours in Berlin",
-    "date": "2026-01-15",
-    "description": "A winter weekend in Neukölln and Prenzlauer Berg.",
-    "tags": [
-      "travel",
-      "Europe",
-      "winter"
-    ],
-    "excerpt": "Winter Berlin is underrated. The cold keeps everyone in the bars and galleries rather than posing for photos in parks. Neukölln Stayed in a flat above a döner shop. The host left a handwritten note ab"
+    "excerpt": "안녕하세요, EmberShine 블로그의 샤인입니다! 오늘은 룩셈부르크 여행 꿀팁 중에서도 아주 중요한 한 가지를 공유하려고 해요. 바로 '주차권 확인'에 대한 이야기입니다. 룩셈부르크는 유럽의 작은 나라이지만, 주차 규정만큼은 정말 엄격하답니다. 저도 예전에 잠깐 방심했다가 큰코다칠 뻔한 적이 있어요. (다행히 미리 발견했죠! 아마 저와 같은 실수를 하는"
   }
 ]
