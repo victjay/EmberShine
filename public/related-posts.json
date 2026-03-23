@@ -219,18 +219,18 @@
       ]
     },
     {
-      "slug": "2026-03-21-439c6a01.en",
+      "slug": "2026-03-21-3415d47a.en",
       "section": "blog",
-      "title": "Salmon Gimbap, Is This Taste Real?",
+      "title": "Fine Dining, Its Delicate Aesthetics",
       "date": "2026-03-21",
       "tags": [
-        "연어김밥",
-        "점심메뉴",
-        "김밥",
-        "간단한끼",
-        "맛있는음식",
-        "EmberShine_일상",
-        "미식의즐거움"
+        "#파인다이닝",
+        "#미식",
+        "#EmberShine_일상",
+        "#맛집탐방",
+        "#특별한경험",
+        "#FineDining",
+        "#레스토랑추천"
       ]
     }
   ],
@@ -544,6 +544,100 @@
         "여행정보",
         "벌금예방",
         "EmberShine"
+      ]
+    }
+  ],
+  "blog/2026-03-21-3415d47a.en": [
+    {
+      "slug": "2026-03-21-3415d47a",
+      "section": "blog",
+      "title": "파인다이닝, 그 섬세한 미학",
+      "date": "2026-03-21",
+      "tags": [
+        "#파인다이닝",
+        "#미식",
+        "#EmberShine_일상",
+        "#맛집탐방",
+        "#특별한경험",
+        "#FineDining",
+        "#레스토랑추천"
+      ]
+    },
+    {
+      "slug": "2026-03-19-4f0faa5b.en",
+      "section": "blog",
+      "title": "An Unexpected Taste in Luxembourg: Vietnamese Spring Rolls!",
+      "date": "2026-03-19",
+      "tags": [
+        "룩셈부르크",
+        "월남쌈",
+        "베트남음식",
+        "유럽여행",
+        "해외맛집",
+        "EmberShine여행기",
+        "미식탐험"
+      ]
+    },
+    {
+      "slug": "2026-03-21-06d93f54.en",
+      "section": "blog",
+      "title": "Finding That Special 'Vibe' in Coding",
+      "date": "2026-03-21",
+      "tags": [
+        "코딩일상",
+        "바이브코딩",
+        "개발자의삶",
+        "코딩팁",
+        "몰입",
+        "개인블로그",
+        "프로그래밍"
+      ]
+    }
+  ],
+  "blog/2026-03-21-3415d47a": [
+    {
+      "slug": "2026-03-21-3415d47a.en",
+      "section": "blog",
+      "title": "Fine Dining, Its Delicate Aesthetics",
+      "date": "2026-03-21",
+      "tags": [
+        "#파인다이닝",
+        "#미식",
+        "#EmberShine_일상",
+        "#맛집탐방",
+        "#특별한경험",
+        "#FineDining",
+        "#레스토랑추천"
+      ]
+    },
+    {
+      "slug": "2026-03-19-4f0faa5b.en",
+      "section": "blog",
+      "title": "An Unexpected Taste in Luxembourg: Vietnamese Spring Rolls!",
+      "date": "2026-03-19",
+      "tags": [
+        "룩셈부르크",
+        "월남쌈",
+        "베트남음식",
+        "유럽여행",
+        "해외맛집",
+        "EmberShine여행기",
+        "미식탐험"
+      ]
+    },
+    {
+      "slug": "2026-03-19-4f0faa5b",
+      "section": "blog",
+      "title": "룩셈부르크에서 만난 뜻밖의 맛, 월남쌈!",
+      "date": "2026-03-19",
+      "tags": [
+        "룩셈부르크",
+        "월남쌈",
+        "베트남음식",
+        "유럽여행",
+        "해외맛집",
+        "EmberShine여행기",
+        "미식탐험"
       ]
     }
   ],

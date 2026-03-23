@@ -1,19 +1,8 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Header from '@/components/Header'
 import '@/app/globals.css'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
 
 // Block all search engine indexing for /private/*
 export const metadata: Metadata = {
@@ -29,7 +18,7 @@ export default async function PrivateLayout({ children }: { children: React.Reac
 
   return (
     <html lang="ko">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="antialiased">
         <div className="min-h-screen bg-slate-50">
           <Header lang="ko" />
           <div className="max-w-2xl mx-auto px-6 py-10">

@@ -218,9 +218,6 @@ Phase 21, 22 상세 내용은 CLAUDE.md 기준.
   - 미확인(처음 방문 또는 stage 변경) → `NEW` 칩 표시 (파란색)
   - `useEffect`에서 즉시 `seen` 마킹 → 다음 방문부터 숨김
 - stage 칩: `categorizing` (노란색) / `ready` (초록색) — `writing`은 표시 안 함
-- 삭제 버튼 (Server Action `deleteDraft.bind()`) + `SubmitButton` 포함
-
----
 
 ### P23-5. DeploymentBanner — 수동 새로고침 버튼
 
@@ -252,6 +249,20 @@ Phase 21, 22 상세 내용은 CLAUDE.md 기준.
 - 제안 스키마: `media_group_buffer` 테이블 (media_group_id 기준 UPSERT + processed 플래그)
 - Flush 트리거 2가지 옵션: pg_cron (Supabase Pro) / Vercel Cron Job
 - quiet_period 실측 절차 포함 (추천 3~10초, 결정 전 측정 필요)
+
+---
+
+## Phase 24 — Routing, permalink policy, workspace filtering, admin delete
+`f834bdd` / `42e45fd` / `414db4a`
+
+- 스마트 라우팅: `src/lib/drafts/resolveDraftNavigation.ts` 추가, `src/app/private/inbox/[id]/page.tsx`에서 `draft_stage` 기준으로 작성 화면 또는 Workspace 탭으로 이동
+- permalink slug 정책: `src/lib/content/resolvePublicSlug.ts`를 단일 진실원천으로 도입하고 `src/app/private/inbox/actions.ts`, `src/app/api/telegram/approve/route.ts`에서 공통 사용, draft 생성 시 `src/app/api/telegram/draft/route.ts`의 `github_path` 선할당 제거
+- 메시지 필터링: `src/app/private/inbox/page.tsx`에서 이미 발행된 draft와 연결된 `inbox_messages`를 메시지 탭에서 자동 제외
+- 버튼 로딩: `src/app/private/categories/CategoryManager.tsx`에 카테고리 추가 스피너, 성공 피드백, 중복 Enter 제출 방지 추가
+- 모바일 레이아웃: `src/components/Header.tsx` 모바일 2줄 헤더로 조정
+- 썸네일 진단: `.github/workflows/auto-thumbnail.yml`에 `contents: write`, `CLOUDFLARE_ACCOUNT_ID` 사용, secret 진단 step 추가
+- 관리자 삭제: `src/components/DeleteButton.tsx`, `src/components/PostSearch.tsx`, `src/app/[lang]/blog/page.tsx`, `src/app/[lang]/stories/page.tsx`, `src/app/[lang]/portfolio/page.tsx`에서 공개 목록 삭제 요청 모달 연결
+- 보조 파일: `src/lib/drafts/resolvePublicSlug.ts` re-export, `scripts/cleanup-korean-slugs.js` 추가, 검색/관련글 산출물 갱신
 
 ---
 

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
 import { notFound } from 'next/navigation'
 import { isValidLocale } from '@/lib/i18n/locale'
 import RootShell from '@/components/RootShell'
@@ -8,16 +7,6 @@ import Footer from '@/components/Footer'
 import '@/app/globals.css'
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://embershine.vercel.app'
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -78,7 +67,7 @@ export default async function LangLayout({
           data-cf-beacon='{"token": "6e1718e348f64fed8e73e9423ccb4d04"}'
         />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="antialiased">
         <RootShell>
           <Header lang={lang} />
           {children}
